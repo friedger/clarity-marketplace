@@ -27,10 +27,27 @@ The owner of a tradable asset can choose to accept a bid from all current bids:
 - `accept`: allows to accept a bid for the tradable asset. The asset will be transferred to the marketplace until the bidder has paid the price.
 - `cancle`: allows to cancle an accepted bid that was not yet paid, e.g. because the bidder disappeared
 
+### Used features of Clarity
+
+The marketplace contract uses
+
+- a map to store offers.
+- the contract as an escrow for transferring assets.
+- `traits` to handle any kind of tradables assets. It makes use of `contract-of` to store the contract of the assets.
+- stx transfers and nft transfers within contract calls that benefit from the post condition feature of the stacks chain.
+
 ## Notes
 
 - Testing using the clarity-js-sdk is currently not possible as the latest SDK does not support `contract-of` function.
 - Deploying to testnet works (run `npx ts-node scripts/market.ts`), however, due to issue [#92](https://github.com/blockstack/stacks-transactions-js/issues/92) it is not possible to call functions with traits as arguments.
+
+### Simplified Marketplace
+
+As a consequence, a simplified marketplace is defined in folder `contract-simple`. The marketplace can only
+trade monsters (defined in `monsters.clar`). The functions are the same, the difference is that traits are not used.
+
+To test the simple contract, run `yarn mocha test/market-simple.ts`.
+While it is possible to initialize the VM with accounts with set amounts of STX, the current SDK does not support this feature. Therefore, the test does not include sucessful calls to the `pay` function.
 
 ## Future Work
 

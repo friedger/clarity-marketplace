@@ -4,6 +4,9 @@
   ((price uint))
 )
 
+(define-map accepting-owners ((tradables principal) (tradable-id uint))
+  ((owner principal))
+)
 (define-constant err-invalid-offer-key u1)
 (define-constant err-payment-failed u2)
 (define-constant err-transfer-failed u3)
@@ -13,12 +16,18 @@
 )
 
 (define-private (transfer-tradable-to-escrow (tradables <tradables-trait>) (tradable-id uint))
-  (contract-call? tradables transfer tradable-id (as-contract tx-sender))
+  (begin
+    (map-insert accepting-owners {tradables: (contract-of tradables), tradable-id: tradable-id} {owner: tx-sender})
+    (contract-call? tradables transfer tradable-id (as-contract tx-sender))
+  )
 )
 
 (define-private (transfer-tradable-from-escrow (tradables <tradables-trait>) (tradable-id uint))
   (let ((owner tx-sender))
-    (as-contract (contract-call? tradables transfer tradable-id owner))
+    (begin
+      (map-delete accepting-owners {tradables: (contract-of tradables), tradable-id: tradable-id})
+      (as-contract (contract-call? tradables transfer tradable-id owner))
+    )
   )
 )
 
@@ -58,6 +67,7 @@
       (match (stx-transfer?  (get price offer) tx-sender owner)
           success (match (as-contract (contract-call? tradables transfer tradable-id bid-owner))
               transferred (begin
+                (map-delete accepting-owners {tradables: (contract-of tradables), tradable-id: tradable-id})
                 (map-delete offers {bid-owner: tx-sender, owner: owner, tradables: (contract-of tradables), tradable-id: tradable-id})
                 (ok true)
                )

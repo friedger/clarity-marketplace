@@ -20,7 +20,7 @@ class MonsterClient extends Client {
   constructor(provider: Provider) {
     super(
       "S1G2081040G2081040G2081040G208105NK8PE5.monsters",
-      "contracts/monsters.clar",
+      "contracts-simple/monsters.clar",
       provider
     );
   }
@@ -41,36 +41,16 @@ class MonsterClient extends Client {
   }
 }
 
-class TradablesClient extends Client {
-  constructor(provider: Provider) {
-    super(
-      "S1G2081040G2081040G2081040G208105NK8PE5.tradables",
-      "contracts/tradables.clar",
-      provider
-    );
-  }
-}
-class ConstantTradableClient extends Client {
-  constructor(provider: Provider) {
-    super(
-      "S1G2081040G2081040G2081040G208105NK8PE5.constant-tradables",
-      "contracts/constant-tradables.clar",
-      provider
-    );
-  }
-}
-
 class MarketClient extends Client {
   constructor(provider: Provider) {
     super(
       "S1G2081040G2081040G2081040G208105NK8PE5.market",
-      "contracts/market.clar",
+      "contracts-simple/market.clar",
       provider
     );
   }
 
   async bid(
-    contractName: string,
     id: number,
     price: number,
     params: { sender: string }
@@ -78,7 +58,35 @@ class MarketClient extends Client {
     const tx = this.createTransaction({
       method: {
         name: "bid",
-        args: [`'${contractName}`, `u${id}`, `u${price}`],
+        args: [`u${id}`, `u${price}`],
+      },
+    });
+    await tx.sign(params.sender);
+    const receipt = await this.submitTransaction(tx);
+    return receipt;
+  }
+
+  async accept(
+    id: number,
+    bidOwner: string,
+    params: { sender: string }
+  ): Promise<Receipt> {
+    const tx = this.createTransaction({
+      method: {
+        name: "accept",
+        args: [`u${id}`, `'${bidOwner}`],
+      },
+    });
+    await tx.sign(params.sender);
+    const receipt = await this.submitTransaction(tx);
+    return receipt;
+  }
+
+  async pay(id: number, params: { sender: string }): Promise<Receipt> {
+    const tx = this.createTransaction({
+      method: {
+        name: "pay",
+        args: [`u${id}`],
       },
     });
     await tx.sign(params.sender);
@@ -91,27 +99,19 @@ describe("monster contract test suite", () => {
   let provider: Provider;
   let monsterClient: MonsterClient;
   let marketClient: MarketClient;
-  let constTradableClient: ConstantTradableClient;
-  let tradablesClient: TradablesClient;
 
   describe("syntax tests", () => {
     before(async () => {
       provider = await ProviderRegistry.createProvider();
-      tradablesClient = new TradablesClient(provider);
       monsterClient = new MonsterClient(provider);
       marketClient = new MarketClient(provider);
-      constTradableClient = new ConstantTradableClient(provider);
     });
 
     it("should have a valid syntax", async () => {
-      await tradablesClient.checkContract();
-      await tradablesClient.deployContract();
-      await marketClient.checkContract();
-      await marketClient.deployContract();
       await monsterClient.checkContract();
       await monsterClient.deployContract();
-      await constTradableClient.checkContract();
-      await constTradableClient.deployContract();
+      await marketClient.checkContract();
+      await marketClient.deployContract();
     });
 
     after(async () => {
@@ -122,22 +122,34 @@ describe("monster contract test suite", () => {
   describe("basic tests", () => {
     beforeEach(async () => {
       provider = await ProviderRegistry.createProvider();
-      tradablesClient = new TradablesClient(provider);
       monsterClient = new MonsterClient(provider);
       marketClient = new MarketClient(provider);
-      constTradableClient = new ConstantTradableClient(provider);
-      await tradablesClient.deployContract();
-      await marketClient.deployContract();
       await monsterClient.deployContract();
-      await constTradableClient.deployContract();
+      await marketClient.deployContract();
+
+      // create a monster
+      await monsterClient.createMonster("Black Tiger", { sender: alice });
     });
 
-    it("should bid for a tradable", async () => {
-      const receipt = await marketClient.bid(constTradableClient.name, 1, 100, {
+    it("should bid, accept successfully but pay for a monster fails", async () => {
+      let receipt = await marketClient.bid(1, 100, {
+        sender: bob,
+      });
+      console.log(receipt);
+      assert.equal(receipt.success, true);
+
+      receipt = await marketClient.accept(1, bob, {
         sender: alice,
       });
       console.log(receipt);
       assert.equal(receipt.success, true);
+
+      receipt = await marketClient.pay(1, {
+        sender: bob,
+      });
+      console.log(receipt);
+      assert.equal(receipt.success, false);
+      assert.equal((receipt.error as any).commandOutput, "Aborted: u2"); // bob has not enough funds
     });
 
     afterEach(async () => {
