@@ -7,6 +7,7 @@ import {
   StacksTestnet,
   broadcastTransaction,
   uintCV,
+  contractPrincipalCV,
 } from "@blockstack/stacks-transactions";
 const BigNum = require("bn.js");
 import * as fs from "fs";
@@ -75,13 +76,17 @@ async function feedMonster(monsterId: number) {
   await new Promise((r) => setTimeout(r, 10000));
 }
 
-async function bid(monsterId: number) {
+async function bid(trait: string, monsterId: number, price: number) {
   console.log("bid for tradable");
   const transaction = await makeContractCall({
     contractAddress,
     contractName: "market",
     functionName: "bid",
-    functionArgs: [uintCV(monsterId)],
+    functionArgs: [
+      contractPrincipalCV(contractAddress, trait),
+      uintCV(monsterId),
+      uintCV(price),
+    ],
     senderKey: secretKey2,
     network,
   });
@@ -92,12 +97,14 @@ async function bid(monsterId: number) {
 }
 
 (async () => {
+  await deployContract("tradables");
   await deployContract("market");
   await deployContract("monsters");
-  await deployContract("constant-tradable");
+  await deployContract("constant-tradables");
 
-  await bid("constant-tradable", 1, 100);
+  await bid("constant-tradables", 1, 100);
 
   await createMonster("Black Tiger");
   await feedMonster(1);
+  await bid("monsters", 1, 100);
 })();

@@ -1,4 +1,4 @@
-(impl-trait .market.tradable-trait)
+(impl-trait .tradables.tradables-trait)
 
 (define-map monsters ((monster-id uint))
   ((name (buff 20))
@@ -16,7 +16,7 @@
 (define-constant err-transfer-failed u5)
 
 (define-private (is-last-meal-young (last-meal uint))
-  (> (to-int last-meal) (to-int (- burn-block-height hunger-tolerance)))
+  (> (to-int last-meal) (to-int (- block-height hunger-tolerance)))
 )
 
 (define-public (create-monster (name (buff 20)))
@@ -27,7 +27,7 @@
           (map-set monsters ((monster-id monster-id))
           (
             (name name)
-            (last-meal  burn-block-height)
+            (last-meal  block-height)
           ))
           (ok monster-id)
         )
@@ -43,8 +43,8 @@
           (begin
             (map-set monsters {monster-id: monster-id} {
               name: (get name monster),
-              last-meal: burn-block-height})
-            (ok burn-block-height)
+              last-meal: block-height})
+            (ok block-height)
           )
           (err err-monster-died)
         )

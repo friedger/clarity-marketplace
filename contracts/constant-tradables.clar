@@ -1,6 +1,6 @@
-(impl-trait .market.tradable-trait)
+(impl-trait .tradables.tradables-trait)
 
-;; a tradable where all instances are owned by the contract
+;; tradables where all instances are owned by the contract
 ;; transfers will never change ownership
 
 (define-read-only (owner-of? (tradable-id uint))
