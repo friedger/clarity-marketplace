@@ -83,7 +83,7 @@ async function bid(trait: string, monsterId: number, price: number) {
     contractName: "market",
     functionName: "bid",
     functionArgs: [
-      contractPrincipalCV(contractAddress, trait),
+      contractPrincipalCV(contractAddress, trait), // should be something like traitCV(...)
       uintCV(monsterId),
       uintCV(price),
     ],

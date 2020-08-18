@@ -16,6 +16,12 @@
   (contract-call? tradables transfer tradable-id (as-contract tx-sender))
 )
 
+(define-private (transfer-tradable-from-escrow (tradables <tradables-trait>) (tradable-id uint))
+  (let ((owner tx-sender))
+    (as-contract (contract-call? tradables transfer tradable-id owner))
+  )
+)
+
 ;; called by the bidder ;-)
 (define-public (bid (tradables <tradables-trait>) (tradable-id uint) (price uint))
   (let ((tradable-owner (unwrap-panic (get-owner tradables tradable-id))))
@@ -24,10 +30,18 @@
   )
 )
 
-;; called by the tradable owner
+;; called by the tradable owner after a bid was placed
 (define-public (accept (tradables <tradables-trait>) (tradable-id uint) (bid-owner principal))
   (match (map-get? offers {owner: tx-sender, bid-owner: bid-owner, tradables: (contract-of tradables), tradable-id: tradable-id})
     offer (transfer-tradable-to-escrow tradables tradable-id)
+    (err err-invalid-offer-key)
+  )
+)
+
+;; called by the tradable owner after a bid was accepted but not yet paid by the bidder
+(define-public (cancle (tradables <tradables-trait>) (tradable-id uint) (bid-owner principal))
+  (match (map-get? offers {owner: tx-sender, bid-owner: bid-owner, tradables: (contract-of tradables), tradable-id: tradable-id})
+    offer (transfer-tradable-from-escrow tradables tradable-id)
     (err err-invalid-offer-key)
   )
 )
