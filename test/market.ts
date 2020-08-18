@@ -41,11 +41,20 @@ class MonsterClient extends Client {
   }
 }
 
+class TradablesClient extends Client {
+  constructor(provider: Provider) {
+    super(
+      "S1G2081040G2081040G2081040G208105NK8PE5.tradables",
+      "contracts/tradables.clar",
+      provider
+    );
+  }
+}
 class ConstantTradableClient extends Client {
   constructor(provider: Provider) {
     super(
-      "S1G2081040G2081040G2081040G208105NK8PE5.constant-tradable",
-      "contracts/constant-tradable.clar",
+      "S1G2081040G2081040G2081040G208105NK8PE5.constant-tradables",
+      "contracts/constant-tradables.clar",
       provider
     );
   }
@@ -83,16 +92,20 @@ describe("monster contract test suite", () => {
   let monsterClient: MonsterClient;
   let marketClient: MarketClient;
   let constTradableClient: ConstantTradableClient;
+  let tradablesClient: TradablesClient;
 
   describe("syntax tests", () => {
     before(async () => {
       provider = await ProviderRegistry.createProvider();
+      tradablesClient = new TradablesClient(provider);
       monsterClient = new MonsterClient(provider);
       marketClient = new MarketClient(provider);
       constTradableClient = new ConstantTradableClient(provider);
     });
 
     it("should have a valid syntax", async () => {
+      await tradablesClient.checkContract();
+      await tradablesClient.deployContract();
       await marketClient.checkContract();
       await marketClient.deployContract();
       await monsterClient.checkContract();
@@ -109,9 +122,11 @@ describe("monster contract test suite", () => {
   describe("basic tests", () => {
     beforeEach(async () => {
       provider = await ProviderRegistry.createProvider();
+      tradablesClient = new TradablesClient(provider);
       monsterClient = new MonsterClient(provider);
       marketClient = new MarketClient(provider);
       constTradableClient = new ConstantTradableClient(provider);
+      await tradablesClient.deployContract();
       await marketClient.deployContract();
       await monsterClient.deployContract();
       await constTradableClient.deployContract();
