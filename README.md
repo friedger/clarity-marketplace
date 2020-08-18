@@ -25,7 +25,7 @@ The marketplace provides two functions for a bidder for a token:
 The owner of a tradable asset can choose to accept a bid from all current bids:
 
 - `accept`: allows to accept a bid for the tradable asset. The asset will be transferred to the marketplace until the bidder has paid the price.
-- `cancle`: allows to cancle an accepted bid that was not yet paid, e.g. because the bidder disappeared
+- `cancel`: allows to cancel an accepted bid that was not yet paid, e.g. because the bidder disappeared
 
 ### Used features of Clarity
 

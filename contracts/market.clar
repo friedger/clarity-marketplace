@@ -48,7 +48,7 @@
 )
 
 ;; called by the tradable owner after a bid was accepted but not yet paid by the bidder
-(define-public (cancle (tradables <tradables-trait>) (tradable-id uint) (bid-owner principal))
+(define-public (cancel (tradables <tradables-trait>) (tradable-id uint) (bid-owner principal))
   (match (map-get? offers {owner: tx-sender, bid-owner: bid-owner, tradables: (contract-of tradables), tradable-id: tradable-id})
     offer (transfer-tradable-from-escrow tradables tradable-id)
     (err err-invalid-offer-key)

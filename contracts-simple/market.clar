@@ -47,7 +47,7 @@
 )
 
 ;; called by the tradable owner after a bid was accepted but not yet paid by the bidder
-(define-public (cancle  (monster-id uint) (bid-owner principal))
+(define-public (cancel  (monster-id uint) (bid-owner principal))
   (match (map-get? offers {owner: tx-sender, bid-owner: bid-owner, monster-id: monster-id})
     offer (transfer-monster-from-escrow monster-id)
     (err err-invalid-offer-key)
