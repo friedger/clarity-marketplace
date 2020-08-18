@@ -1,3 +1,5 @@
+(impl-trait .market.tradable-trait)
+
 (define-map monsters ((monster-id uint))
   ((name (buff 20))
   (last-meal uint))
@@ -22,11 +24,11 @@
       (if (is-ok (nft-mint? nft-monsters monster-id tx-sender))
         (begin
           (var-set next-id (+ monster-id u1))
-          (map-set monsters {monster-id: monster-id}
-          {
-            name: name,
-            last-meal: burn-block-height
-          })
+          (map-set monsters ((monster-id monster-id))
+          (
+            (name name)
+            (last-meal  burn-block-height)
+          ))
           (ok monster-id)
         )
         (err err-monster-exists)
@@ -53,14 +55,17 @@
 
 
 (define-read-only (owner-of? (monster-id uint))
-  (nft-get-owner? nft-monsters monster-id)
+  (match (nft-get-owner? nft-monsters monster-id)
+    owner (ok owner)
+    (err err-monster-unborn)
+  )
 )
 
 (define-public (transfer (monster-id uint) (recipient principal))
   (let ((owner (unwrap! (owner-of? monster-id) (err err-monster-unborn))))
     (if (is-eq owner tx-sender)
       (match (nft-transfer? nft-monsters monster-id tx-sender recipient)
-        success (ok 1)
+        success (ok true)
         error (err err-transfer-failed)
       )
       (err err-transfer-not-allowed)

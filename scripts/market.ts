@@ -6,6 +6,7 @@ import {
   ChainID,
   StacksTestnet,
   broadcastTransaction,
+  uintCV,
 } from "@blockstack/stacks-transactions";
 const BigNum = require("bn.js");
 import * as fs from "fs";
@@ -18,36 +19,20 @@ const keys = JSON.parse(
 const keys2 = JSON.parse(
   fs.readFileSync("../clarity-smart-contracts/keys2.json").toString()
 );
+const secretKey = keys.secretKey;
+const secretKey2 = keys2.secretKey;
+const contractAddress = keys.stacksAddress;
+
 const network = new StacksTestnet();
 network.coreApiUrl = STACKS_API_URL;
 
-(async () => {
-  const contractAddress = keys.stacksAddress;
-  const monstersContractName = "monsters";
-  const marketContractName = "market";
-
-  const codeBody = fs.readFileSync("./contracts/market.clar").toString();
-
-  const secretKey = keys.secretKey;
-  const secretKey2 = keys2.secretKey;
-
-  var transaction = await makeContractDeploy({
-    contractName: marketContractName,
-    codeBody,
-    senderKey: secretKey,
-    network,
-  });
-  console.log("deploy contract");
-  var result = await broadcastTransaction(transaction, network);
-  console.log(result);
-
-  /*
-  const monstersCodeBody = fs
-    .readFileSync("./contracts/monsters.clar")
+async function deployContract(contractName: string) {
+  const codeBody = fs
+    .readFileSync(`./contracts/${contractName}.clar`)
     .toString();
   var transaction = await makeContractDeploy({
-    contractName: monstersContractName,
-    codeBody: monstersCodeBody,
+    contractName,
+    codeBody: codeBody,
     senderKey: secretKey,
     network,
   });
@@ -56,26 +41,31 @@ network.coreApiUrl = STACKS_API_URL;
   console.log(result);
 
   await new Promise((r) => setTimeout(r, 10000));
+}
 
-  console.log("create");
+async function createMonster(monsterName: string) {
+  console.log("create monster");
 
-  transaction = await makeContractCall({
+  const transaction = await makeContractCall({
     contractAddress,
-    contractName: monstersContractName,
-    functionName: "create",
-    functionArgs: [bufferCV(new Buffer("Black Tiger"))],
+    contractName: "monsters",
+    functionName: "create-monster",
+    functionArgs: [bufferCV(new Buffer(monsterName))],
     senderKey: secretKey,
     network,
   });
   var result = await broadcastTransaction(transaction, network);
   console.log(result);
+  await new Promise((r) => setTimeout(r, 10000));
+}
 
+async function feedMonster(monsterId: number) {
   console.log("feed monster");
-  transaction = await makeContractCall({
+  const transaction = await makeContractCall({
     contractAddress,
-    contractName: monstersContractName,
+    contractName: "monsters",
     functionName: "feed-monster",
-    functionArgs: [],
+    functionArgs: [uintCV(monsterId)],
     senderKey: secretKey2,
     network,
   });
@@ -83,8 +73,31 @@ network.coreApiUrl = STACKS_API_URL;
   var result = await broadcastTransaction(transaction, network);
   console.log(result);
   await new Promise((r) => setTimeout(r, 10000));
+}
+
+async function bid(monsterId: number) {
+  console.log("bid for tradable");
+  const transaction = await makeContractCall({
+    contractAddress,
+    contractName: "market",
+    functionName: "bid",
+    functionArgs: [uintCV(monsterId)],
+    senderKey: secretKey2,
+    network,
+  });
 
   var result = await broadcastTransaction(transaction, network);
   console.log(result);
-  */
+  await new Promise((r) => setTimeout(r, 10000));
+}
+
+(async () => {
+  await deployContract("market");
+  await deployContract("monsters");
+  await deployContract("constant-tradable");
+
+  await bid("constant-tradable", 1, 100);
+
+  await createMonster("Black Tiger");
+  await feedMonster(1);
 })();

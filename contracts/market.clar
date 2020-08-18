@@ -1,7 +1,7 @@
 (define-trait tradable-trait
   (
     (owner-of? (uint) (response principal uint))
-    (transfer (uint principal) (response principal uint))
+    (transfer (uint principal) (response bool uint))
   )
 )
 
@@ -29,7 +29,7 @@
   )
 )
 
-;; called by the monster owner
+;; called by the tradable owner
 (define-public (accept (tradable <tradable-trait>) (tradable-id uint) (bid-owner principal))
   (match (map-get? offers {owner: tx-sender, bid-owner: bid-owner, tradable: (contract-of tradable), tradable-id: tradable-id})
     offer (transfer-tradable-to-escrow tradable tradable-id)
