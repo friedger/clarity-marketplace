@@ -85,6 +85,39 @@ class MarketClient extends Client {
     const receipt = await this.submitTransaction(tx);
     return receipt;
   }
+
+  async accept(
+    contractName: string,
+    id: number,
+    bidOwner: string,
+    params: { sender: string }
+  ): Promise<Receipt> {
+    const tx = this.createTransaction({
+      method: {
+        name: "accept",
+        args: [`'${contractName}`, `u${id}`, `'${bidOwner}`],
+      },
+    });
+    await tx.sign(params.sender);
+    const receipt = await this.submitTransaction(tx);
+    return receipt;
+  }
+
+  async pay(
+    contractName: string,
+    id: number,
+    params: { sender: string }
+  ): Promise<Receipt> {
+    const tx = this.createTransaction({
+      method: {
+        name: "pay",
+        args: [`'${contractName}`, `u${id}`],
+      },
+    });
+    await tx.sign(params.sender);
+    const receipt = await this.submitTransaction(tx);
+    return receipt;
+  }
 }
 
 describe("monster contract test suite", () => {
@@ -130,14 +163,28 @@ describe("monster contract test suite", () => {
       await marketClient.deployContract();
       await monsterClient.deployContract();
       await constTradableClient.deployContract();
+      await monsterClient.createMonster("Black Tiger", { sender: alice }); // monster with id == 1
     });
 
-    it("should bid for a tradable", async () => {
-      const receipt = await marketClient.bid(constTradableClient.name, 1, 100, {
+    it("should bid, accept successfully but pay for a monster fails", async () => {
+      let receipt = await marketClient.bid(monsterClient.name, 1, 100, {
+        sender: bob,
+      });
+      console.log(receipt);
+      assert.equal(receipt.success, true);
+
+      receipt = await marketClient.accept(monsterClient.name, 1, bob, {
         sender: alice,
       });
       console.log(receipt);
       assert.equal(receipt.success, true);
+
+      receipt = await marketClient.pay(monsterClient.name, 1, {
+        sender: bob,
+      });
+      console.log(receipt);
+      assert.equal(receipt.success, false);
+      assert.equal((receipt.error as any).commandOutput, "Aborted: u2"); // bob has not enough funds
     });
 
     afterEach(async () => {

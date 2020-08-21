@@ -33,8 +33,8 @@
 
 ;; called by the bidder ;-)
 (define-public (bid (tradables <tradables-trait>) (tradable-id uint) (price uint))
-  (let ((tradable-owner (unwrap-panic (get-owner tradables tradable-id))))
-    (ok (map-insert offers {bid-owner: tx-sender, owner: tradable-owner, tradables: (contract-of tradables), tradable-id: tradable-id}
+  (let ((contract (contract-of tradables)) (tradable-owner (unwrap-panic (get-owner tradables tradable-id))))
+    (ok (map-insert offers {bid-owner: tx-sender, owner: tradable-owner, tradables: contract, tradable-id: tradable-id}
                 {price: price}))
   )
 )
@@ -57,23 +57,26 @@
 
 ;; called by the bidder
 (define-public (pay (tradables <tradables-trait>) (tradable-id uint))
-  (let (
-      (owner (unwrap-panic (get-owner tradables tradable-id)))
-      (bid-owner tx-sender)
-    )
-    (let ((offer (unwrap-panic
-          (map-get? offers {bid-owner: tx-sender, owner: owner, tradables: (contract-of tradables), tradable-id: tradable-id}))))
+  (let ((contract (contract-of tradables)))
+    (let (
 
-      (match (stx-transfer?  (get price offer) tx-sender owner)
-          success (match (as-contract (contract-call? tradables transfer tradable-id bid-owner))
-              transferred (begin
-                (map-delete accepting-owners {tradables: (contract-of tradables), tradable-id: tradable-id})
-                (map-delete offers {bid-owner: tx-sender, owner: owner, tradables: (contract-of tradables), tradable-id: tradable-id})
-                (ok true)
-               )
-              error (err err-transfer-failed)
-          )
-        error (err err-payment-failed)
+        (owner (unwrap-panic (get owner (map-get? accepting-owners {tradables: contract,  tradable-id: tradable-id}))))
+        (bid-owner tx-sender)
+      )
+      (let ((offer (unwrap-panic
+            (map-get? offers {bid-owner: tx-sender, owner: owner, tradables: contract, tradable-id: tradable-id}))))
+
+        (match (stx-transfer?  (get price offer) tx-sender owner)
+            success (match (as-contract (contract-call? tradables transfer tradable-id bid-owner))
+                transferred (begin
+                  (map-delete accepting-owners {tradables: (contract-of tradables), tradable-id: tradable-id})
+                  (map-delete offers {bid-owner: tx-sender, owner: owner, tradables: (contract-of tradables), tradable-id: tradable-id})
+                  (ok true)
+                )
+                error (err err-transfer-failed)
+            )
+          error (err err-payment-failed)
+        )
       )
     )
   )
