@@ -6,6 +6,8 @@ Clarity smart contract for a marketplace of tradable assets (some kind of basic 
 
 (Inspired by the marketplace of monstereos.io)
 
+This is a submission to the CLARITY HACK of the Stacks 2.0 Hackathon Series.
+
 ## Smart Contracts
 
 The main contract `market.clar` describes the marketplaces. `tradables.clar` defines the interface (`trait`) of tradable assets. There are two examples of tradable assets:
