@@ -38,7 +38,7 @@ The marketplace contract uses
 
 ## Notes
 
-- Testing using the clarity-js-sdk is currently not possible as the latest SDK does not support `contract-of` function.
+- Testing using the clarity-js-sdk is currently not possible as the latest SDK (0.2.0) does not support `contract-of` function. (Workaround: copy the most recent binary `clarity-cli` to the `node_modules/@blockstack/clarity-native-bin/.native-bin` folder of this project)
 - Deploying to testnet works (run `npx ts-node scripts/market.ts`), however, due to issue [#92](https://github.com/blockstack/stacks-transactions-js/issues/92) it is not possible to call functions with traits as arguments.
 
 ### Simplified Marketplace
@@ -48,6 +48,14 @@ trade monsters (defined in `monsters.clar`). The functions are the same, the dif
 
 To test the simple contract, run `yarn mocha test/market-simple.ts`.
 While it is possible to initialize the VM with accounts with set amounts of STX, the current SDK does not support this feature. Therefore, the test does not include sucessful calls to the `pay` function.
+
+## Deployment
+
+There is a script in folder `scripts` called `market.ts` that can be used to deploy the contracts to the testnet. Replace the location of the keychain.json file ontop of the script. Then run
+
+```
+npx ts-node scripts/market.ts
+```
 
 ## Future Work
 
