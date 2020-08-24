@@ -33,8 +33,8 @@
 
 ;; called by the bidder ;-)
 (define-public (bid (tradables <tradables-trait>) (tradable-id uint) (price uint))
-  (let ((contract (contract-of tradables)) (tradable-owner (unwrap-panic (get-owner tradables tradable-id))))
-    (ok (map-insert offers {bid-owner: tx-sender, owner: tradable-owner, tradables: contract, tradable-id: tradable-id}
+  (let ((tradable-owner (unwrap-panic (get-owner tradables tradable-id))))
+    (ok (map-insert offers {bid-owner: tx-sender, owner: tradable-owner, tradables: (contract-of tradables), tradable-id: tradable-id}
                 {price: price}))
   )
 )
