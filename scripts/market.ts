@@ -14,30 +14,35 @@ const fetch = require("node-fetch");
 const BigNum = require("bn.js");
 import * as fs from "fs";
 
-const STACKS_API_URL = "http://localhost:20443"; // "http://testnet-master.blockstack.org:20443";
+const local = false;
+const mocknet = false;
+
+const STACKS_API_URL = local
+  ? "http://localhost:20443"
+  : "http://testnet-master.blockstack.org:20443";
 const SIDECAR_API_URL = "https://sidecar.staging.blockstack.xyz";
 const network = new StacksTestnet();
 network.coreApiUrl = STACKS_API_URL;
 
-/* Replace with your private key for testnet deployment
-const keys = JSON.parse(
-  fs.readFileSync("../../blockstack/stacks-blockchain/keychain.json").toString()
-).paymentKeyInfo;
-
-const secretKey = keys.privateKey;
-const contractAddress = keys.address.STACKS;
-*/
-
 const keys1 = JSON.parse(fs.readFileSync("keys.json").toString());
 const keys2 = JSON.parse(fs.readFileSync("keys2.json").toString());
-
-// private keys of contract deployer
-const secretKey = keys1.secretKey;
-const contractAddress = keys1.stacksAddress;
 
 // private keys of users
 const secretKey1 = keys1.secretKey;
 const secretKey2 = keys2.secretKey;
+
+/* Replace with your private key for testnet deployment */
+
+const keys = mocknet
+  ? undefined
+  : JSON.parse(
+      fs
+        .readFileSync("../../blockstack/stacks-blockchain/keychain.json")
+        .toString()
+    ).paymentKeyInfo;
+
+const secretKey = keys ? keys.privateKey : keys.secretKey;
+const contractAddress = keys ? keys.address.STACKS : keys1.stacksAddress;
 
 //
 // utils functions
@@ -68,7 +73,7 @@ async function handleTransaction(transaction: StacksTransaction) {
 
 async function deployContract(contractName: string) {
   const codeBody = fs
-    .readFileSync(`./contracts/${contractName}.clar`)
+    .readFileSync(`./contracts-simple/${contractName}.clar`)
     .toString();
   var transaction = await makeContractDeploy({
     contractName,
@@ -85,7 +90,9 @@ function timeout(ms: number) {
 }
 
 async function processing(tx: String, count: number = 0): Promise<boolean> {
-  return processingWithoutSidecar(tx, count);
+  return mocknet
+    ? processingWithoutSidecar(tx, count)
+    : processingWithSidecar(tx, count);
 }
 
 async function processingWithoutSidecar(
@@ -177,15 +184,20 @@ async function bid(trait: string, monsterId: number, price: number) {
 }
 
 (async () => {
+  /*
   await deployContract("tradables");
   await deployContract("market");
   await deployContract("monsters");
   await deployContract("constant-tradables");
+  */
+
+  await deployContract("monsters");
+  await deployContract("market");
 
   // uncomment once #92 is fixed
   // await bid("constant-tradables", 1, 100);
 
-  await createMonster("Black Tiger");
-  await feedMonster(1);
+  //await createMonster("Black Tiger");
+  //await feedMonster(1);
   // await bid("monsters", 1, 100);
 })();

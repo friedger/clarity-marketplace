@@ -5,7 +5,7 @@
 
 (define-non-fungible-token nft-monsters uint)
 (define-data-var next-id uint u1)
-(define-constant hunger-tolerance u6) ;; 6 blocks a 10 seconds
+(define-constant hunger-tolerance u148) ;; 6 blocks a 10 minutes
 
 (define-constant err-monster-unborn u1)
 (define-constant err-monster-exists u2)
@@ -51,14 +51,6 @@
   )
 )
 
-
-(define-read-only (owner-of? (monster-id uint))
-  (match (nft-get-owner? nft-monsters monster-id)
-    owner (ok owner)
-    (err err-monster-unborn)
-  )
-)
-
 (define-public (transfer (monster-id uint) (recipient principal))
   (let ((owner (unwrap! (owner-of? monster-id) (err err-monster-unborn))))
     (if (is-eq owner tx-sender)
@@ -71,10 +63,20 @@
   )
 )
 
+(define-read-only (last-monster-id)
+   (- (var-get next-id) u1)
+)
+
+(define-read-only (owner-of? (monster-id uint))
+  (match (nft-get-owner? nft-monsters monster-id)
+    owner (ok owner)
+    (err err-monster-unborn)
+  )
+)
+
 (define-read-only (is-alive (monster-id uint))
   (match (map-get? monsters {monster-id: monster-id})
     monster (ok (is-last-meal-young (get last-meal monster)))
     (err err-monster-unborn)
   )
 )
-

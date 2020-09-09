@@ -4,7 +4,6 @@ import {
   ProviderRegistry,
   Client,
   Receipt,
-  Transaction,
 } from "@blockstack/clarity";
 
 const addresses = [
