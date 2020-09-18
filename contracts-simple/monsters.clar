@@ -1,6 +1,7 @@
 (define-map monsters ((monster-id uint))
   ((name (buff 20))
-  (last-meal uint))
+  (last-meal uint)
+  (image uint))
 )
 
 (define-non-fungible-token nft-monsters uint)
@@ -21,7 +22,7 @@
   (> (to-int last-meal) (to-int (- (get-time) hunger-tolerance)))
 )
 
-(define-public (create-monster (name (buff 20)))
+(define-public (create-monster (name (buff 20)) (image uint))
     (let ((monster-id (var-get next-id)))
       (if (is-ok (nft-mint? nft-monsters monster-id tx-sender))
         (begin
@@ -29,7 +30,8 @@
           (map-set monsters ((monster-id monster-id))
             {
               name: name,
-              last-meal: (get-time)
+              last-meal: (get-time),
+              image: image
             }
           )
           (ok monster-id)
@@ -46,7 +48,9 @@
           (begin
             (map-set monsters {monster-id: monster-id} {
               name: (get name monster),
-              last-meal: last-meal }
+              last-meal: last-meal,
+              image: (get image monster)
+              }
             )
             (ok block-height)
           )

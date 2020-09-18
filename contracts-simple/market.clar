@@ -38,7 +38,7 @@
   )
 )
 
-;; called by the tradable owner after a bid was placed
+;; called by the owner after a bid was placed
 (define-public (accept  (monster-id uint) (bid-owner principal))
   (match (map-get? offers {owner: tx-sender, bid-owner: bid-owner, monster-id: monster-id})
     offer (transfer-monster-to-escrow monster-id)
@@ -46,7 +46,7 @@
   )
 )
 
-;; called by the tradable owner after a bid was accepted but not yet paid by the bidder
+;; called by the owner after a bid was accepted but not yet paid by the bidder
 (define-public (cancel  (monster-id uint) (bid-owner principal))
   (match (map-get? offers {owner: tx-sender, bid-owner: bid-owner, monster-id: monster-id})
     offer (transfer-monster-from-escrow monster-id)
