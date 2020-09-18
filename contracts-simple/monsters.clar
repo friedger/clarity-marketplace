@@ -5,7 +5,7 @@
 
 (define-non-fungible-token nft-monsters uint)
 (define-data-var next-id uint u1)
-(define-constant hunger-tolerance u148) ;; 6 blocks a 10 minutes
+(define-constant hunger-tolerance u86400) ;; 1 day in seconds
 
 (define-constant err-monster-unborn u1)
 (define-constant err-monster-exists u2)
@@ -13,8 +13,12 @@
 (define-constant err-transfer-not-allowed u4)
 (define-constant err-transfer-failed u5)
 
+(define-private (get-time)
+   (unwrap-panic (get-block-info? time (- block-height u1)))
+)
+
 (define-private (is-last-meal-young (last-meal uint))
-  (> (to-int last-meal) (to-int (- block-height hunger-tolerance)))
+  (> (to-int last-meal) (to-int (- (get-time) hunger-tolerance)))
 )
 
 (define-public (create-monster (name (buff 20)))
@@ -23,10 +27,11 @@
         (begin
           (var-set next-id (+ monster-id u1))
           (map-set monsters ((monster-id monster-id))
-          (
-            (name name)
-            (last-meal  block-height)
-          ))
+            {
+              name: name,
+              last-meal: (get-time)
+            }
+          )
           (ok monster-id)
         )
         (err err-monster-exists)
@@ -36,12 +41,13 @@
 
 (define-public (feed-monster (monster-id uint))
   (match (map-get? monsters {monster-id: monster-id})
-    monster (begin
+    monster (let ((last-meal (get-time)))
         (if (is-last-meal-young (get last-meal monster))
           (begin
             (map-set monsters {monster-id: monster-id} {
               name: (get name monster),
-              last-meal: block-height})
+              last-meal: last-meal }
+            )
             (ok block-height)
           )
           (err err-monster-died)

@@ -95,7 +95,7 @@ class MarketClient extends Client {
   }
 }
 
-describe("monster contract test suite", () => {
+describe("simple monster contract test suite", () => {
   let provider: Provider;
   let monsterClient: MonsterClient;
   let marketClient: MarketClient;
@@ -128,7 +128,11 @@ describe("monster contract test suite", () => {
       await marketClient.deployContract();
 
       // create a monster
-      await monsterClient.createMonster("Black Tiger", { sender: alice });
+      // fails due to https://github.com/blockstack/clarity-js-sdk/issues/78
+      const result = await monsterClient.createMonster("Black Tiger", {
+        sender: alice,
+      });
+      assert.equal(true, result.success);
     });
 
     it("should bid, accept successfully but pay for a monster fails", async () => {
