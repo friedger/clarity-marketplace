@@ -1,8 +1,9 @@
 (impl-trait .tradables.tradables-trait)
 
 (define-map monsters ((monster-id uint))
-  ((name (buff 20))
-  (last-meal uint))
+  ((name (buff 20)))
+  (last-meal uint)
+  (image (buff 256))
 )
 
 (define-non-fungible-token nft-monsters uint)
@@ -79,4 +80,14 @@
     (err err-monster-unborn)
   )
 )
+
+(define-read-only (name (monster-id uint))
+  (match (map-get? monsters {monster-id: monster-id})
+    monster (ok (get name monster))
+    (err err-monster-unborn)))
+
+(define-read-only (image (monster-id uint))
+  (match (map-get? monsters {monster-id: monster-id})
+    monster (ok (get image monster))
+    (err err-monster-unborn)))
 
