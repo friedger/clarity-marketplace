@@ -9,20 +9,26 @@ import {
   TxBroadcastResultRejected,
   TxBroadcastResultOk,
   StacksTransaction,
+  bufferCVFromString,
+  makeSTXTokenTransfer,
 } from "@blockstack/stacks-transactions";
 const fetch = require("node-fetch");
 const BigNum = require("bn.js");
 import * as fs from "fs";
+import { ADDR1, ADDR2, testnetKeyMap } from "./mocknet";
 
-const local = false;
-const mocknet = false;
+const local = true;
+const mocknet = true;
+const noSidecar = false;
 
-const STACKS_API_URL = local
-  ? "http://localhost:20443"
+const STACKS_CORE_API_URL = local
+  ? "http://localhost:3999"
   : "http://testnet-master.blockstack.org:20443";
-const SIDECAR_API_URL = "https://sidecar.staging.blockstack.xyz";
+const STACKS_API_URL = local
+  ? "http://localhost:3999"
+  : "https://stacks-node-api.blockstack.org";
 const network = new StacksTestnet();
-network.coreApiUrl = STACKS_API_URL;
+network.coreApiUrl = STACKS_CORE_API_URL;
 
 const keys1 = JSON.parse(fs.readFileSync("keys.json").toString());
 const keys2 = JSON.parse(fs.readFileSync("keys2.json").toString());
@@ -34,25 +40,27 @@ const secretKey2 = keys2.secretKey;
 /* Replace with your private key for testnet deployment */
 
 const keys = mocknet
-  ? undefined
+  ? testnetKeyMap[ADDR1]
   : JSON.parse(
       fs
         .readFileSync("../../blockstack/stacks-blockchain/keychain.json")
         .toString()
     ).paymentKeyInfo;
 
-const secretKey = keys ? keys.privateKey : keys.secretKey;
-const contractAddress = keys ? keys.address.STACKS : keys1.stacksAddress;
+const secretKey = mocknet ? keys.secretKey : keys.privateKey;
+const contractAddress = mocknet ? keys.address : keys.address.STACKS;
 
 //
 // utils functions
 //
 async function handleTransaction(transaction: StacksTransaction) {
   const result = await broadcastTransaction(transaction, network);
+  console.log(result);
   if ((result as TxBroadcastResultRejected).error) {
     if (
       (result as TxBroadcastResultRejected).reason === "ContractAlreadyExists"
     ) {
+      console.log("already deployed");
       return "" as TxBroadcastResultOk;
     } else {
       throw new Error(
@@ -68,12 +76,13 @@ async function handleTransaction(transaction: StacksTransaction) {
       `failed to process transaction ${transaction.txid}: transaction not found`
     );
   }
+  console.log(processed, result);
   return result as TxBroadcastResultOk;
 }
 
 async function deployContract(contractName: string) {
   const codeBody = fs
-    .readFileSync(`./contracts-simple/${contractName}.clar`)
+    .readFileSync(`./contracts/${contractName}.clar`)
     .toString();
   var transaction = await makeContractDeploy({
     contractName,
@@ -90,7 +99,7 @@ function timeout(ms: number) {
 }
 
 async function processing(tx: String, count: number = 0): Promise<boolean> {
-  return mocknet
+  return noSidecar
     ? processingWithoutSidecar(tx, count)
     : processingWithSidecar(tx, count);
 }
@@ -107,9 +116,8 @@ async function processingWithSidecar(
   tx: String,
   count: number = 0
 ): Promise<boolean> {
-  var result = await fetch(
-    `${SIDECAR_API_URL}/sidecar/v1/tx/${tx.substr(1, tx.length - 2)}`
-  );
+  const url = `${STACKS_API_URL}/extended/v1/tx/${tx}`;
+  var result = await fetch(url);
   var value = await result.json();
   console.log(count);
   if (value.tx_status === "success") {
@@ -143,7 +151,7 @@ async function createMonster(monsterName: string) {
     contractAddress,
     contractName: "monsters",
     functionName: "create-monster",
-    functionArgs: [bufferCV(new Buffer(monsterName))],
+    functionArgs: [bufferCVFromString(monsterName)],
     senderKey: secretKey,
     network,
   });
@@ -183,16 +191,34 @@ async function bid(trait: string, monsterId: number, price: number) {
   return handleTransaction(transaction);
 }
 
+async function sendSTXTokens() {
+  console.log("init wallet");
+  const transaction = await makeSTXTokenTransfer({
+    recipient: "ST25GX7MJA4FGEYYH5E7EBW30BYA4VG4VC1XETXXZ",
+    amount: new BigNum(1000000),
+    senderKey: testnetKeyMap[ADDR2].secretKey,
+    network,
+  });
+
+  return handleTransaction(transaction);
+}
+
 (async () => {
   /*
+  if (!mocknet) {
+    await sendSTXTokens();
+  }
+*/
+
   await deployContract("tradables");
   await deployContract("market");
   await deployContract("monsters");
   await deployContract("constant-tradables");
-  */
 
+  /*
   await deployContract("monsters");
   await deployContract("market");
+  */
 
   // uncomment once #92 is fixed
   // await bid("constant-tradables", 1, 100);

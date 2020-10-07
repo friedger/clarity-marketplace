@@ -8,7 +8,7 @@
   "repository": "https://github.com/friedger/marketplace.git",
   "private": true,
   "engines": {
-    "node": ">=10"
+    "node": ">=12"
   },
   "scripts": {
     "test": "mocha",
