@@ -137,7 +137,11 @@ async function processingWithSidecar(
     return false;
   }
 
-  await timeout(50000);
+  if (mocknet) {
+    await timeout(5000);
+  } else {
+    await timeout(50000);
+  }
   return processing(tx, count + 1);
 }
 
