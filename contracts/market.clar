@@ -1,5 +1,12 @@
 (use-trait tradables-trait .tradables.tradables-trait)
 
+(define-map on-sale ((owner principal) (tradables principal) (tradable-id uint))
+  (
+    (price uint)
+    (duration uint)
+  )
+)
+
 (define-map offers ((bid-owner principal) (owner principal) (tradables principal) (tradable-id uint))
   ((price uint))
 )
@@ -10,6 +17,8 @@
 (define-constant err-invalid-offer-key u1)
 (define-constant err-payment-failed u2)
 (define-constant err-transfer-failed u3)
+(define-constant err-not-allowed u4)
+(define-constant err-duplicate-entry u5)
 
 (define-private (get-owner (tradables <tradables-trait>) (tradable-id uint))
   (contract-call? tradables owner-of? tradable-id)
@@ -31,6 +40,20 @@
   )
 )
 
+;; called by the owner
+(define-public (offer-tradable (tradables <tradables-trait>) (tradable-id uint) (price uint) (duration uint))
+  (let ((tradable-owner (unwrap-panic (get-owner tradables tradable-id))))
+    (if (is-eq tradable-owner tx-sender)
+      (if (map-insert on-sale {owner: tradable-owner, tradables: (contract-of tradables), tradable-id: tradable-id}
+                {price: price, duration: duration})
+          (ok true)
+          (err err-duplicate-entry)
+      )
+      (err err-not-allowed)
+    )
+  )
+)
+
 ;; called by the bidder ;-)
 (define-public (bid (tradables <tradables-trait>) (tradable-id uint) (price uint))
   (let ((tradable-owner (unwrap-panic (get-owner tradables tradable-id))))
@@ -42,7 +65,10 @@
 ;; called by the tradable owner after a bid was placed
 (define-public (accept (tradables <tradables-trait>) (tradable-id uint) (bid-owner principal))
   (match (map-get? offers {owner: tx-sender, bid-owner: bid-owner, tradables: (contract-of tradables), tradable-id: tradable-id})
-    offer (transfer-tradable-to-escrow tradables tradable-id)
+    offer (begin
+      (map-delete on-sale {owner: tx-sender, tradables: (contract-of tradables), tradable-id: tradable-id})
+      (transfer-tradable-to-escrow tradables tradable-id)
+    )
     (err err-invalid-offer-key)
   )
 )

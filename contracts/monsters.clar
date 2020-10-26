@@ -3,12 +3,14 @@
 (define-map monsters ((monster-id uint))
   ((name (buff 20))
   (last-meal uint)
-  (image uint))
+  (image uint)
+  (date-of-birth uint)
+  )
 )
 
 (define-non-fungible-token nft-monsters uint)
 (define-data-var next-id uint u1)
-(define-constant hunger-tolerance u6) ;; 6 blocks a 10 seconds
+(define-constant hunger-tolerance u86400) ;; 1 day in seconds
 
 (define-constant err-monster-unborn u1)
 (define-constant err-monster-exists u2)
@@ -33,7 +35,8 @@
           {
             name: name,
             last-meal: (get-time),
-            image: image
+            image: image,
+            date-of-birth: (get-time)
           }
           )
           (ok monster-id)
@@ -51,7 +54,8 @@
            (map-set monsters {monster-id: monster-id} {
               name: (get name monster),
               last-meal: last-meal,
-              image: (get image monster)
+              image: (get image monster),
+              date-of-birth: (get date-of-birth monster)
               }
             )
             (ok block-height)
