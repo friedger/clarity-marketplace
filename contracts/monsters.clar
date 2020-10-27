@@ -8,6 +8,11 @@
   )
 )
 
+{name: "text", last-meal: "block-height", image: "number-index", date-of-birth: "block-height"}
+(define-read-only (get-meta-data (monster-id uint))
+    (map-get? monsters {monster-id: monster-id})
+)
+
 (define-non-fungible-token nft-monsters uint)
 (define-data-var next-id uint u1)
 (define-constant hunger-tolerance u86400) ;; 1 day in seconds
@@ -26,6 +31,7 @@
   (> (to-int last-meal) (to-int (- (get-time) hunger-tolerance)))
 )
 
+{action:"create"}
 (define-public (create-monster (name (buff 20)) (image uint))
     (let ((monster-id (var-get next-id)))
       (if (is-ok (nft-mint? nft-monsters monster-id tx-sender))
@@ -46,6 +52,7 @@
   )
 )
 
+{control:"button"}
 (define-public (feed-monster (monster-id uint))
   (match (map-get? monsters {monster-id: monster-id})
     monster (let ((last-meal (get-time)))
@@ -67,6 +74,7 @@
   )
 )
 
+{action:"transfer"}
 (define-public (transfer (monster-id uint) (recipient principal))
   (let ((owner (unwrap! (owner-of? monster-id) (err err-monster-unborn))))
     (if (is-eq owner tx-sender)
