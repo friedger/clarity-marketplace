@@ -1,18 +1,16 @@
 (use-trait tradables-trait .tradables.tradables-trait)
 
-(define-map on-sale ((owner principal) (tradables principal) (tradable-id uint))
-  (
-    (price uint)
-    (duration uint)
-  )
+(define-map on-sale
+  {owner: principal, tradables: principal, tradable-id: uint}
+  {price: uint, duration: uint}
 )
 
-(define-map offers ((bid-owner principal) (owner principal) (tradables principal) (tradable-id uint))
-  ((price uint))
+(define-map offers {bid-owner: principal, owner: principal, tradables: principal, tradable-id: uint}
+  {price: uint}
 )
 
-(define-map accepting-owners ((tradables principal) (tradable-id uint))
-  ((owner principal))
+(define-map accepting-owners {tradables: principal, tradable-id: uint}
+  {owner: principal}
 )
 (define-constant err-invalid-offer-key u1)
 (define-constant err-payment-failed u2)
@@ -21,13 +19,13 @@
 (define-constant err-duplicate-entry u5)
 
 (define-private (get-owner (tradables <tradables-trait>) (tradable-id uint))
-  (contract-call? tradables owner-of? tradable-id)
+  (contract-call? tradables get-owner? tradable-id)
 )
 
 (define-private (transfer-tradable-to-escrow (tradables <tradables-trait>) (tradable-id uint))
   (begin
     (map-insert accepting-owners {tradables: (contract-of tradables), tradable-id: tradable-id} {owner: tx-sender})
-    (contract-call? tradables transfer tradable-id (as-contract tx-sender))
+    (contract-call? tradables transfer? tradable-id tx-sender (as-contract tx-sender))
   )
 )
 
@@ -35,7 +33,7 @@
   (let ((owner tx-sender))
     (begin
       (map-delete accepting-owners {tradables: (contract-of tradables), tradable-id: tradable-id})
-      (as-contract (contract-call? tradables transfer tradable-id owner))
+      (as-contract (contract-call? tradables transfer? tradable-id (as-contract tx-sender) owner))
     )
   )
 )
@@ -93,7 +91,7 @@
             (map-get? offers {bid-owner: tx-sender, owner: owner, tradables: contract, tradable-id: tradable-id}))))
 
         (match (stx-transfer?  (get price offer) tx-sender owner)
-            success (match (as-contract (contract-call? tradables transfer tradable-id bid-owner))
+            success (match (as-contract (contract-call? tradables transfer? tradable-id tx-sender bid-owner))
                 transferred (begin
                   (map-delete accepting-owners {tradables: (contract-of tradables), tradable-id: tradable-id})
                   (map-delete offers {bid-owner: tx-sender, owner: owner, tradables: (contract-of tradables), tradable-id: tradable-id})

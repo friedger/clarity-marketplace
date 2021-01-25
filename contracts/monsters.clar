@@ -1,11 +1,10 @@
 (impl-trait .tradables.tradables-trait)
 
-(define-map monsters ((monster-id uint))
-  ((name (buff 20))
-  (last-meal uint)
-  (image uint)
-  (date-of-birth uint)
-  )
+(define-map monsters {monster-id: uint}
+  {name: (string-ascii 20),
+  last-meal: uint,
+  image: uint,
+  date-of-birth: uint}
 )
 
 {name: "text", last-meal: "block-height", image: "number-index", date-of-birth: "block-height"}
@@ -17,11 +16,11 @@
 (define-data-var next-id uint u1)
 (define-constant hunger-tolerance u86400) ;; 1 day in seconds
 
-(define-constant err-monster-unborn u1)
-(define-constant err-monster-exists u2)
-(define-constant err-monster-died u3)
-(define-constant err-transfer-not-allowed u4)
-(define-constant err-transfer-failed u5)
+(define-constant err-monster-unborn u10)
+(define-constant err-monster-exists u20)
+(define-constant err-monster-died u30)
+(define-constant err-transfer-not-allowed u40)
+(define-constant err-transfer-failed u50)
 
 (define-private (get-time)
    (unwrap-panic (get-block-info? time (- block-height u1)))
@@ -31,8 +30,8 @@
   (> (to-int last-meal) (to-int (- (get-time) hunger-tolerance)))
 )
 
-{action:"create"}
-(define-public (create-monster (name (buff 20)) (image uint))
+{action: "create"}
+(define-public (create-monster (name (string-ascii 20)) (image uint))
     (let ((monster-id (var-get next-id)))
       (if (is-ok (nft-mint? nft-monsters monster-id tx-sender))
         (begin
@@ -52,7 +51,7 @@
   )
 )
 
-{control:"button"}
+{control: "button"}
 (define-public (feed-monster (monster-id uint))
   (match (map-get? monsters {monster-id: monster-id})
     monster (let ((last-meal (get-time)))
@@ -74,13 +73,13 @@
   )
 )
 
-{action:"transfer"}
-(define-public (transfer (monster-id uint) (recipient principal))
-  (let ((owner (unwrap! (owner-of? monster-id) (err err-monster-unborn))))
-    (if (is-eq owner tx-sender)
-      (match (nft-transfer? nft-monsters monster-id tx-sender recipient)
+{action: "transfer"}
+(define-public (transfer? (monster-id uint) (sender principal) (recipient principal))
+  (let ((owner (unwrap! (get-owner? monster-id) (err err-monster-unborn))))
+    (if (is-eq owner sender)
+      (match (nft-transfer? nft-monsters monster-id sender recipient)
         success (ok true)
-        error (err err-transfer-failed)
+        error (err (+ err-transfer-failed error))
       )
       (err err-transfer-not-allowed)
     )
@@ -91,7 +90,7 @@
    (- (var-get next-id) u1)
 )
 
-(define-read-only (owner-of? (monster-id uint))
+(define-read-only (get-owner? (monster-id uint))
   (match (nft-get-owner? nft-monsters monster-id)
     owner (ok owner)
     (err err-monster-unborn)

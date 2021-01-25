@@ -4,28 +4,30 @@
 import {
   broadcastTransaction,
   makeContractDeploy,
-  StacksTestnet,
   StacksTransaction,
   TxBroadcastResultOk,
   TxBroadcastResultRejected,
-} from "@blockstack/stacks-transactions";
+} from "@stacks/transactions";
+import { StacksTestnet } from "@stacks/network";
+
 import * as fs from "fs";
 const fetch = require("node-fetch");
 
-import { ADDR1, testnetKeyMap } from "./mocknet";
-
+import { ADDR5, testnetKeyMap } from "./mocknet";
+const BigNum = require("bn.js"
+);
 export const local = false;
 export const mocknet = false;
-export const noSidecar = false;
+export const noSidecar = true;
 
 const STACKS_CORE_API_URL = local
   ? noSidecar
-    ? "http://localhost:20443"
+    ? "http://localhost:21443"
     : "http://localhost:3999"
-  : "http://testnet-master.blockstack.org:20443";
-const STACKS_API_URL = local
+  : "https://stacks-node-api.testnet.stacks.co";
+export const STACKS_API_URL = local
   ? "http://localhost:3999"
-  : "https://stacks-node-api.blockstack.org";
+  : "https://stacks-node-api.testnet.stacks.co";
 export const network = new StacksTestnet();
 network.coreApiUrl = STACKS_CORE_API_URL;
 
@@ -39,15 +41,15 @@ export const secretKey2 = keys2.secretKey;
 /* Replace with your private key for testnet deployment */
 
 const keys = mocknet
-  ? testnetKeyMap[ADDR1]
+  ? testnetKeyMap[ADDR5]
   : JSON.parse(
       fs
-        .readFileSync("../../blockstack/stacks-blockchain/keychain.json")
+        .readFileSync("../../blockstack/stacks-blockchain/keychain2.json")
         .toString()
-    ).paymentKeyInfo;
+    );
 
-export const secretKey = mocknet ? keys.secretKey : keys.privateKey;
-export const contractAddress = mocknet ? keys.address : keys.address.STACKS;
+export const secretKey = mocknet ? keys.secretKey : keys.private;
+export const contractAddress = mocknet ? keys.address : keys.stacks;
 
 //
 export async function handleTransaction(transaction: StacksTransaction) {
@@ -77,9 +79,9 @@ export async function handleTransaction(transaction: StacksTransaction) {
   return result as TxBroadcastResultOk;
 }
 
-export async function deployContract(contractName: string) {
+export async function deployContract(contractName: string, path?: string) {
   const codeBody = fs
-    .readFileSync(`./contracts/${contractName}.clar`)
+    .readFileSync(path || `./contracts/${contractName}.clar`)
     .toString();
   var transaction = await makeContractDeploy({
     contractName,
