@@ -10,6 +10,6 @@
     "sourceMap": true,
     "noEmit": true
   },
-  "include": ["tests"],
+  "include": ["test"],
   "exclude": ["node_modules"]
 }

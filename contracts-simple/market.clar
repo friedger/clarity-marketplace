@@ -1,9 +1,9 @@
-(define-map offers ((bid-owner principal) (owner principal) (monster-id uint))
-  ((price uint))
+(define-map offers {bid-owner: principal, owner: principal, monster-id: uint}
+  {price: uint}
 )
 
-(define-map accepting-owners ((monster-id uint))
-  ((owner principal))
+(define-map accepting-owners {monster-id: uint}
+  {owner: principal}
 )
 
 (define-constant err-invalid-offer-key u1)

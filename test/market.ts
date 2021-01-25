@@ -4,7 +4,9 @@ import {
   ProviderRegistry,
   Client,
   Receipt,
+  Result,
 } from "@blockstack/clarity";
+import { providerWithInitialAllocations } from "./providerWithInitialAllocations";
 
 const addresses = [
   "SP2J6ZY48GV1EZ5V2V5RB9MP66SW86PYKKNRV9EJ7",
@@ -26,12 +28,13 @@ class MonsterClient extends Client {
 
   async createMonster(
     name: string,
+    image: string,
     params: { sender: string }
   ): Promise<Receipt> {
     const tx = this.createTransaction({
       method: {
         name: "create-monster",
-        args: [`"${name}"`],
+        args: [`"${name}"`, `u102`],
       },
     });
     await tx.sign(params.sender);
@@ -153,6 +156,13 @@ describe("monster contract test suite", () => {
 
   describe("basic tests", () => {
     beforeEach(async () => {
+      ProviderRegistry.registerProvider(
+        providerWithInitialAllocations([
+          { principal: alice, amount: 10000 },
+          { principal: bob, amount: 10000 },
+        ])
+      );
+
       provider = await ProviderRegistry.createProvider();
       tradablesClient = new TradablesClient(provider);
       monsterClient = new MonsterClient(provider);
@@ -162,7 +172,11 @@ describe("monster contract test suite", () => {
       await marketClient.deployContract();
       await monsterClient.deployContract();
       await constTradableClient.deployContract();
-      await monsterClient.createMonster("Black Tiger", { sender: alice }); // monster with id == 1
+      const result = await monsterClient.createMonster("Black Tiger", "1", {
+        sender: alice,
+      }); // monster with id == 1
+      console.log(result);
+      assert.equal(result.success, true);
     });
 
     it("should bid, accept successfully but pay for a monster fails", async () => {
@@ -182,8 +196,11 @@ describe("monster contract test suite", () => {
         sender: bob,
       });
       console.log(receipt);
-      assert.equal(receipt.success, false);
-      assert.equal((receipt.error as any).commandOutput, "Aborted: u2"); // bob has not enough funds
+      assert.equal(receipt.success, true);
+      assert.match(
+        Result.unwrap(receipt),
+        /^Transaction executed and committed. Returned: true/
+      );
     });
 
     afterEach(async () => {

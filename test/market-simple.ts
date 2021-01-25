@@ -6,6 +6,7 @@ import {
   Receipt,
   Transaction,
 } from "@blockstack/clarity";
+import { providerWithInitialAllocations } from "./providerWithInitialAllocations";
 
 const addresses = [
   "SP2J6ZY48GV1EZ5V2V5RB9MP66SW86PYKKNRV9EJ7",
@@ -27,12 +28,13 @@ class MonsterClient extends Client {
 
   async createMonster(
     name: string,
+    image: number,
     params: { sender: string }
   ): Promise<Receipt> {
     const tx = this.createTransaction({
       method: {
         name: "create-monster",
-        args: [`"${name}"`],
+        args: [`"${name}"`, `u${image}`],
       },
     });
     await tx.sign(params.sender);
@@ -121,6 +123,12 @@ describe("simple monster contract test suite", () => {
 
   describe("basic tests", () => {
     beforeEach(async () => {
+      ProviderRegistry.registerProvider(
+        providerWithInitialAllocations([
+          { principal: alice, amount: 10000 },
+          { principal: bob, amount: 10000 },
+        ])
+      );
       provider = await ProviderRegistry.createProvider();
       monsterClient = new MonsterClient(provider);
       marketClient = new MarketClient(provider);
@@ -129,7 +137,7 @@ describe("simple monster contract test suite", () => {
 
       // create a monster
       // fails due to https://github.com/blockstack/clarity-js-sdk/issues/78
-      const result = await monsterClient.createMonster("Black Tiger", {
+      const result = await monsterClient.createMonster("Black Tiger", 1, {
         sender: alice,
       });
       assert.equal(true, result.success);
@@ -152,8 +160,11 @@ describe("simple monster contract test suite", () => {
         sender: bob,
       });
       console.log(receipt);
-      assert.equal(receipt.success, false);
-      assert.equal((receipt.error as any).commandOutput, "Aborted: u2"); // bob has not enough funds
+      assert.equal(receipt.success, true);
+      assert.match(
+        receipt.result as any,
+        /^Transaction executed and committed. Returned: true/
+      );
     });
 
     afterEach(async () => {

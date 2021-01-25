@@ -1,12 +1,13 @@
-import {
-  pubKeyfromPrivKey,
-  publicKeyToString,
-} from "@blockstack/stacks-transactions";
+import { pubKeyfromPrivKey, publicKeyToString } from "@stacks/transactions";
 
+// from default public Stacks.toml file
 export const ADDR1 = "STB44HYPYAT2BB2QE513NSP81HTMYWBJP02HPGK6";
 export const ADDR2 = "ST11NJTTKGVT6D1HY4NJRVQWMQM7TVAR091EJ8P2Y";
 export const ADDR3 = "ST1HB1T8WRNBYB0Y3T7WXZS38NKKPTBR3EG9EPJKR";
 export const ADDR4 = "STRYYQQ9M8KAF4NS7WNZQYY59X93XEKR31JP64CP";
+
+// from personal public Stacks.toml file
+export const ADDR5 = "ST2ZRX0K27GW0SP3GJCEMHD95TQGJMKB7G9Y0X1MH";
 
 export const testnetKeys: { secretKey: string; stacksAddress: string }[] = [
   {
@@ -28,6 +29,11 @@ export const testnetKeys: { secretKey: string; stacksAddress: string }[] = [
     secretKey:
       "e75dcb66f84287eaf347955e94fa04337298dbd95aa0dbb985771104ef1913db01",
     stacksAddress: ADDR4,
+  },
+  {
+    secretKey:
+      "b8d99fd45da58038d630d9855d3ca2466e8e0f89d3894c4724f0efc9ff4b51f001",
+    stacksAddress: ADDR5,
   },
 ];
 

@@ -4,7 +4,14 @@ import {
   contractPrincipalCV,
   bufferCVFromString,
   makeSTXTokenTransfer,
-} from "@blockstack/stacks-transactions";
+  standardPrincipalCV,
+  stringUtf8CV,
+  listCV,
+  noneCV,
+  tupleCV,
+  stringAsciiCV,
+  PostConditionMode,
+} from "@stacks/transactions";
 import {
   contractAddress,
   secretKey,
@@ -71,17 +78,70 @@ async function faucetCall(recipient: string) {
   const transaction = await makeSTXTokenTransfer({
     recipient,
     amount: new BigNum(93333903125000),
-    senderKey: testnetKeyMap[ADDR4].secretKey,
+    senderKey: testnetKeyMap[ADDR3].secretKey,
     network,
   });
 
   return handleTransaction(transaction);
 }
 
+async function mintNFTs() {
+  console.log("mint nfts");
+  const transaction = await makeContractCall({
+    contractAddress,
+    contractName: "boom-nfts",
+    functionName: "mint",
+    functionArgs: [
+      standardPrincipalCV(contractAddress),
+      noneCV(),
+      stringUtf8CV("Pictureless"),
+      listCV([
+        tupleCV({
+          name: stringUtf8CV("No picture"),
+          number: uintCV(1),
+          uri: stringAsciiCV(""),
+        }),
+      ]),
+    ],
+    senderKey: secretKey,
+    network,
+  });
+
+  //const result = await handleTransaction(transaction);
+  //console.log(result);
+  const transaction2 = await makeContractCall({
+    contractAddress,
+    contractName: "boom-nfts",
+    functionName: "transfer",
+    functionArgs: [
+      uintCV(1),
+      standardPrincipalCV("ST12EY99GS4YKP0CP2CFW6SEPWQ2CGVRWK5GHKDRV"),
+      standardPrincipalCV("ST10S31Y7G0A1A18J5C6CFVXWRW62CQRMF2YPE097"),
+    ],
+    postConditionMode: PostConditionMode.Allow,
+    senderKey: secretKey,
+    network,
+  });
+  const result2 = await handleTransaction(transaction2);
+  console.log(result2);
+}
+
 (async (action: number = 0) => {
   switch (action) {
+    case 3:
+      await mintNFTs();
+    case 2:
+      await deployContract("nft-trait", "../clarity-smart-contracts/contracts/sips/nft-trait.clar");
+      //await deployContract("boom-nfts-v3", "../../../gitlab/riot.ai/boom.money/contracts/boom-nfts.clar");
+      break;
     case 1:
-      faucetCall("ST3K71ZXNT2J3YBY6CTW01VVY1PZ1EDB3G1KBW314");
+      //await faucetCall("ST314JC8J24YWNVAEJJHQXS5Q4S9DX1FW5Z9DK9NT")
+      //await faucetCall("ST33GW755MQQP6FZ58S423JJ23GBKK5ZKH3MGR55N");
+      await faucetCall("ST2MY1BVKR8W8NF58N2GX6JDZDRT5CXP6RVZ097M4");
+      //await faucetCall("ST9SW39M98MZXBGWSDVN228NW1NWENWCF321GWMK");
+      //await faucetCall("ST12EY99GS4YKP0CP2CFW6SEPWQ2CGVRWK5GHKDRV");
+      //await faucetCall("ST1CV2J4FK96CQM2TNMABV5YBF620R175GCVHM192");
+      //await faucetCall("ST2NM3E9MAWWRNGFEKW75QR4XXVA856N4MHNMYA3T");
       break;
     default:
       await deployContract("tradables");
