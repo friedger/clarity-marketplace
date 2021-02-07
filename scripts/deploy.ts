@@ -18,13 +18,15 @@ const BigNum = require("bn.js"
 );
 export const local = false;
 export const mocknet = false;
-export const noSidecar = true;
+export const noSidecar = false;
 
 const STACKS_CORE_API_URL = local
   ? noSidecar
     ? "http://localhost:21443"
     : "http://localhost:3999"
-  : "https://stacks-node-api.testnet.stacks.co";
+  :  "https://stacks-node-api.testnet.stacks.co";
+    //"http://178.170.47.25:20443";
+    //"http://45.77.131.83:20443";
 export const STACKS_API_URL = local
   ? "http://localhost:3999"
   : "https://stacks-node-api.testnet.stacks.co";

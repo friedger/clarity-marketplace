@@ -34,7 +34,7 @@ const accountsApi = new AccountsApi(apiConfig);
 
 const senderKey = JSON.parse(
   fs.readFileSync("../../blockstack/stacks-blockchain/keychain.json").toString()
-).keyInfo.privateKey;
+).privateKey;
 
 const minerStxAddress = getAddressFromPrivateKey(
   senderKey,

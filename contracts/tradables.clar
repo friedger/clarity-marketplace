@@ -1,6 +1,6 @@
-(define-trait tradables-trait
+(define-trait tradables-definition
   (
-    (get-owner? (uint) (response principal uint))
-    (transfer? (uint principal principal) (response bool uint))
+    (get-owner (uint) (response principal uint))
+    (transfer (uint principal principal) (response bool (tuple (kind (string-ascii 32)) (code uint))))
   )
 )

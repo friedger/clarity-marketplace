@@ -87,19 +87,40 @@ async function faucetCall(recipient: string) {
 
 async function mintNFTs() {
   console.log("mint nfts");
+  const boomAddress = "ST314JC8J24YWNVAEJJHQXS5Q4S9DX1FW5Z9DK9NT";
+  const boomName = "boom-nfts-v5";
   const transaction = await makeContractCall({
-    contractAddress,
-    contractName: "boom-nfts",
-    functionName: "mint",
+    contractAddress: boomAddress,
+    contractName: boomName,
+    functionName: "mint-series",
     functionArgs: [
       standardPrincipalCV(contractAddress),
       noneCV(),
-      stringUtf8CV("Pictureless"),
+      noneCV(),
+      stringUtf8CV("OpenIntents"),
+      stringAsciiCV("https://avatars.githubusercontent.com/u/311533"),
+      stringAsciiCV("image/png"),
       listCV([
         tupleCV({
-          name: stringUtf8CV("No picture"),
+          name: stringUtf8CV("OpenIntents"),
           number: uintCV(1),
-          uri: stringAsciiCV(""),
+          uri: stringAsciiCV("https://avatars.githubusercontent.com/u/311533"),
+          "mime-type": stringAsciiCV("image/png"),
+          hash: bufferCVFromString("invalidhash"),
+        }),
+        tupleCV({
+          name: stringUtf8CV("OpenIntents"),
+          number: uintCV(2),
+          uri: stringAsciiCV("https://avatars.githubusercontent.com/u/311533"),
+          "mime-type": stringAsciiCV("image/png"),
+          hash: bufferCVFromString("invalidhash"),
+        }),
+        tupleCV({
+          name: stringUtf8CV("OpenIntents"),
+          number: uintCV(3),
+          uri: stringAsciiCV("https://avatars.githubusercontent.com/u/311533"),
+          "mime-type": stringAsciiCV("image/png"),
+          hash: bufferCVFromString("invalidhash"),
         }),
       ]),
     ],
@@ -110,13 +131,13 @@ async function mintNFTs() {
   //const result = await handleTransaction(transaction);
   //console.log(result);
   const transaction2 = await makeContractCall({
-    contractAddress,
-    contractName: "boom-nfts",
+    contractAddress: boomAddress,
+    contractName: boomName,
     functionName: "transfer",
     functionArgs: [
-      uintCV(1),
-      standardPrincipalCV("ST12EY99GS4YKP0CP2CFW6SEPWQ2CGVRWK5GHKDRV"),
-      standardPrincipalCV("ST10S31Y7G0A1A18J5C6CFVXWRW62CQRMF2YPE097"),
+      uintCV(17),
+      standardPrincipalCV(contractAddress),
+      standardPrincipalCV("ST314JC8J24YWNVAEJJHQXS5Q4S9DX1FW5Z9DK9NT"),
     ],
     postConditionMode: PostConditionMode.Allow,
     senderKey: secretKey,
@@ -130,14 +151,18 @@ async function mintNFTs() {
   switch (action) {
     case 3:
       await mintNFTs();
+      break;
     case 2:
-      await deployContract("nft-trait", "../clarity-smart-contracts/contracts/sips/nft-trait.clar");
-      //await deployContract("boom-nfts-v3", "../../../gitlab/riot.ai/boom.money/contracts/boom-nfts.clar");
+      //await deployContract("nft-trait", "../clarity-smart-contracts/contracts/sips/nft-trait.clar");
+      await deployContract(
+        "boom-nfts-v5",
+        "../../../gitlab/riot.ai/boom.money/contracts/boom-nfts.clar"
+      );
       break;
     case 1:
       //await faucetCall("ST314JC8J24YWNVAEJJHQXS5Q4S9DX1FW5Z9DK9NT")
-      //await faucetCall("ST33GW755MQQP6FZ58S423JJ23GBKK5ZKH3MGR55N");
-      await faucetCall("ST2MY1BVKR8W8NF58N2GX6JDZDRT5CXP6RVZ097M4");
+      await faucetCall("ST33GW755MQQP6FZ58S423JJ23GBKK5ZKH3MGR55N");
+      //await faucetCall("ST2MY1BVKR8W8NF58N2GX6JDZDRT5CXP6RVZ097M4");
       //await faucetCall("ST9SW39M98MZXBGWSDVN228NW1NWENWCF321GWMK");
       //await faucetCall("ST12EY99GS4YKP0CP2CFW6SEPWQ2CGVRWK5GHKDRV");
       //await faucetCall("ST1CV2J4FK96CQM2TNMABV5YBF620R175GCVHM192");

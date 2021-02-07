@@ -1,4 +1,4 @@
-(impl-trait .tradables.tradables-trait)
+(impl-trait .tradables.tradables-definition)
 
 (define-map monsters {monster-id: uint}
   {name: (string-ascii 20),
@@ -74,14 +74,14 @@
 )
 
 {action: "transfer"}
-(define-public (transfer? (monster-id uint) (sender principal) (recipient principal))
-  (let ((owner (unwrap! (get-owner? monster-id) (err err-monster-unborn))))
+(define-public (transfer (monster-id uint) (sender principal) (recipient principal))
+  (let ((owner (unwrap! (get-owner monster-id) (err {kind: "not-found", code: err-monster-unborn}))))
     (if (is-eq owner sender)
       (match (nft-transfer? nft-monsters monster-id sender recipient)
         success (ok true)
-        error (err (+ err-transfer-failed error))
+        error (err {kind: "nft-transfer-failed", code: error})
       )
-      (err err-transfer-not-allowed)
+      (err {kind: "permission-denied", code: err-transfer-not-allowed})
     )
   )
 )
@@ -90,7 +90,7 @@
    (- (var-get next-id) u1)
 )
 
-(define-read-only (get-owner? (monster-id uint))
+(define-read-only (get-owner (monster-id uint))
   (match (nft-get-owner? nft-monsters monster-id)
     owner (ok owner)
     (err err-monster-unborn)
