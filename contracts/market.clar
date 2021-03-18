@@ -1,4 +1,4 @@
-(use-trait tradables-trait .tradables.tradables-definition)
+(use-trait tradables-trait .tradables-trait.tradables-trait)
 
 (define-map on-sale
   {owner: principal, tradables: principal, tradable-id: uint}

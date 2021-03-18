@@ -169,7 +169,7 @@ async function mintNFTs() {
       //await faucetCall("ST2NM3E9MAWWRNGFEKW75QR4XXVA856N4MHNMYA3T");
       break;
     default:
-      await deployContract("tradables");
+      await deployContract("tradables-trait");
       await deployContract("market");
       await deployContract("monsters");
       await deployContract("constant-tradables");

@@ -2,7 +2,9 @@ import {
   addressFromPublicKeys,
   broadcastTransaction,
   bufferCV,
+  callReadOnlyFunction,
   createStacksPublicKey,
+  cvToJSON,
   getAddressFromPrivateKey,
   makeContractCall,
   pubKeyfromPrivKey,
@@ -44,7 +46,7 @@ const minerStxAddress = getAddressFromPrivateKey(
 const hashbytes = bufferCV(
   Buffer.from(c32addressDecode(minerStxAddress)[1], "hex")
 );
-const version = bufferCV(Buffer.from("01", "hex"));
+const version = bufferCV(Buffer.from("00", "hex"));
 
 async function stack() {
   const poxInfo = await infoApi.getPoxInfo();
@@ -69,7 +71,7 @@ async function stack() {
       uintCV(info.burn_block_height + 1),
       uintCV(10),
     ],
-    senderKey: secretKey,
+    senderKey,
     validateWithAbi: true,
     network,
   };
@@ -81,4 +83,21 @@ async function stack() {
   console.log(contractCall);
 }
 
-(async () => await stack())();
+async function stackInfo() {
+  const poxInfo = await infoApi.getPoxInfo();
+  const [contractAddress, contractName] = poxInfo.contract_id.split(".");
+
+  const result = await callReadOnlyFunction({
+    contractAddress,
+    contractName,
+    functionName: "is-pox-active",
+    functionArgs: [uintCV(111)],
+    senderAddress: contractAddress,
+    network,
+  });
+  console.log(cvToJSON(result));
+  return result;
+}
+(async () =>
+  //await stack()
+  await stackInfo())();

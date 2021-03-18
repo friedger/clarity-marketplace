@@ -1,10 +1,10 @@
-(impl-trait .tradables.tradables-definition)
+(impl-trait .tradables-trait.tradables-trait)
 
 ;; tradables where all instances are owned by the contract
 ;; transfers will never change ownership
 
 (define-read-only (get-owner (tradable-id uint))
-  (ok (as-contract tx-sender))
+  (ok (some (as-contract tx-sender)))
 )
 
 ;; transfer is successful, however, the owner will never change
