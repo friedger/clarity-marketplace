@@ -1,4 +1,4 @@
-(impl-trait .tradables.tradables-trait)
+(impl-trait 'ST1JSH2FPE8BWNTP228YZ1AZZ0HE0064PS54Q30F0.nft-trait.nft-trait)
 
 (define-map monsters {monster-id: uint}
   {name: (string-ascii 20),
@@ -11,6 +11,7 @@
 (define-read-only (get-meta-data (monster-id uint))
     (map-get? monsters {monster-id: monster-id})
 )
+
 
 (define-non-fungible-token nft-monsters uint)
 (define-data-var next-id uint u1)
@@ -74,26 +75,29 @@
 )
 
 {action: "transfer"}
-(define-public (transfer? (monster-id uint) (sender principal) (recipient principal))
-  (let ((owner (unwrap! (get-owner? monster-id) (err err-monster-unborn))))
+(define-public (transfer (monster-id uint) (sender principal) (recipient principal))
+  (let ((owner (unwrap! (unwrap-panic (get-owner monster-id)) (err {kind: "not-found", code: err-monster-unborn}))))
     (if (is-eq owner sender)
       (match (nft-transfer? nft-monsters monster-id sender recipient)
         success (ok true)
-        error (err (+ err-transfer-failed error))
+        error (err {kind: "nft-transfer-failed", code: error})
       )
-      (err err-transfer-not-allowed)
+      (err {kind: "permission-denied", code: err-transfer-not-allowed})
     )
   )
 )
 
-(define-read-only (last-monster-id)
-   (- (var-get next-id) u1)
+(define-read-only (get-last-token-id)
+  (ok (- (var-get next-id) u1))
 )
 
-(define-read-only (get-owner? (monster-id uint))
+(define-read-only (get-token-uri (monster-id uint))
+  (ok none))
+
+(define-read-only (get-owner (monster-id uint))
   (match (nft-get-owner? nft-monsters monster-id)
-    owner (ok owner)
-    (err err-monster-unborn)
+    owner (ok (some owner))
+    (ok none)
   )
 )
 

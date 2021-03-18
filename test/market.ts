@@ -46,8 +46,8 @@ class MonsterClient extends Client {
 class TradablesClient extends Client {
   constructor(provider: Provider) {
     super(
-      "S1G2081040G2081040G2081040G208105NK8PE5.tradables",
-      "contracts/tradables.clar",
+      "S1G2081040G2081040G2081040G208105NK8PE5.tradables-trait",
+      "contracts/tradables-trait.clar",
       provider
     );
   }
