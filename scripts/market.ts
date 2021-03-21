@@ -77,8 +77,8 @@ async function faucetCall(recipient: string) {
   console.log("init wallet");
   const transaction = await makeSTXTokenTransfer({
     recipient,
-    amount: new BigNum(93333903125000),
-    senderKey: testnetKeyMap[ADDR3].secretKey,
+    amount: new BigNum(440000000000000),
+    senderKey: testnetKeyMap[ADDR4].secretKey,
     network,
   });
 
@@ -156,10 +156,12 @@ async function mintNFTs() {
       //await deployContract("nft-trait", "../clarity-smart-contracts/contracts/sips/nft-trait.clar");
       await deployContract(
         "boom-nfts-v5",
-        "../../../gitlab/riot.ai/boom.money/contracts/boom-nfts.clar"
+        {path: "../../../gitlab/riot.ai/boom.money/contracts/boom-nfts.clar"}
       );
       break;
     case 1:
+      //await faucetCall("ST3SCYQ5V9EFAFNYMZ4WCAK9F1J2SKYD9H9K5SZVT"); // mo
+      //await faucetCall("ST383QW2EEKNX2KREZ4YGNZPEZ3BPXJ9RWH8037B"); // blockpac / Peter
       //await faucetCall("ST314JC8J24YWNVAEJJHQXS5Q4S9DX1FW5Z9DK9NT")
       await faucetCall("ST33GW755MQQP6FZ58S423JJ23GBKK5ZKH3MGR55N");
       //await faucetCall("ST2MY1BVKR8W8NF58N2GX6JDZDRT5CXP6RVZ097M4");
@@ -171,7 +173,7 @@ async function mintNFTs() {
     default:
       await deployContract("tradables-trait");
       await deployContract("market");
-      await deployContract("monsters");
+      await deployContract("monsters", {suffix: "-v1"});
       await deployContract("constant-tradables");
 
       /*
