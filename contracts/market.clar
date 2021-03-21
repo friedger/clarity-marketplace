@@ -17,6 +17,7 @@
 (define-constant err-transfer-failed u3)
 (define-constant err-not-allowed u4)
 (define-constant err-duplicate-entry u5)
+(define-constant err-tradable-not-found u6)
 
 (define-private (get-owner (tradables <tradables-trait>) (tradable-id uint))
   (contract-call? tradables get-owner tradable-id)
@@ -40,7 +41,7 @@
 
 ;; called by the owner
 (define-public (offer-tradable (tradables <tradables-trait>) (tradable-id uint) (price uint) (duration uint))
-  (let ((tradable-owner (unwrap-panic (get-owner tradables tradable-id))))
+  (let ((tradable-owner (unwrap! (unwrap-panic (get-owner tradables tradable-id)) (err err-tradable-not-found))))
     (if (is-eq tradable-owner tx-sender)
       (if (map-insert on-sale {owner: tradable-owner, tradables: (contract-of tradables), tradable-id: tradable-id}
                 {price: price, duration: duration})
@@ -54,7 +55,7 @@
 
 ;; called by the bidder ;-)
 (define-public (bid (tradables <tradables-trait>) (tradable-id uint) (price uint))
-  (let ((tradable-owner (unwrap-panic (get-owner tradables tradable-id))))
+  (let ((tradable-owner (unwrap! (unwrap-panic (get-owner tradables tradable-id)) (err err-tradable-not-found))))
     (ok (map-insert offers {bid-owner: tx-sender, owner: tradable-owner, tradables: (contract-of tradables), tradable-id: tradable-id}
                 {price: price}))
   )

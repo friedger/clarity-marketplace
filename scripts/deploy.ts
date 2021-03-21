@@ -81,12 +81,15 @@ export async function handleTransaction(transaction: StacksTransaction) {
   return result as TxBroadcastResultOk;
 }
 
-export async function deployContract(contractName: string, path?: string) {
+export async function deployContract(
+  contractName: string,
+  options?: { path?: string; suffix?: string }
+) {
   const codeBody = fs
-    .readFileSync(path || `./contracts/${contractName}.clar`)
+    .readFileSync(options?.path || `./contracts/${contractName}.clar`)
     .toString();
   var transaction = await makeContractDeploy({
-    contractName,
+    contractName: `${contractName}${options?.suffix || ""}`,
     codeBody: codeBody,
     senderKey: secretKey,
     network,

@@ -132,6 +132,12 @@ describe("monster contract test suite", () => {
   describe("syntax tests", () => {
     before(async () => {
       provider = await ProviderRegistry.createProvider();
+      await new Client(
+        "ST2PABAF9FTAJYNFZH93XENAJ8FVY99RRM4DF2YCW.nft-trait",
+        "../../clarity-smart-contracts/contracts/sips/nft-trait.clar",
+        provider
+      ).deployContract();
+
       tradablesClient = new TradablesClient(provider);
       monsterClient = new MonsterClient(provider);
       marketClient = new MarketClient(provider);
@@ -164,6 +170,12 @@ describe("monster contract test suite", () => {
       );
 
       provider = await ProviderRegistry.createProvider();
+      await new Client(
+        "ST2PABAF9FTAJYNFZH93XENAJ8FVY99RRM4DF2YCW.nft-trait",
+        "../../clarity-smart-contracts/contracts/sips/nft-trait.clar",
+        provider
+      ).deployContract();
+
       tradablesClient = new TradablesClient(provider);
       monsterClient = new MonsterClient(provider);
       marketClient = new MarketClient(provider);
