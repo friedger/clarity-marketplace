@@ -68,7 +68,7 @@
       (map-delete on-sale {owner: tx-sender, tradables: (contract-of tradables), tradable-id: tradable-id})
       (transfer-tradable-to-escrow tradables tradable-id)
     )
-    (err {kind: "offer-not-found", code: err-invalid-offer-key})
+    (err err-invalid-offer-key)
   )
 )
 
@@ -76,7 +76,7 @@
 (define-public (cancel (tradables <tradables-trait>) (tradable-id uint) (bid-owner principal))
   (match (map-get? offers {owner: tx-sender, bid-owner: bid-owner, tradables: (contract-of tradables), tradable-id: tradable-id})
     offer (transfer-tradable-from-escrow tradables tradable-id)
-    (err {kind: "not-found", code: err-invalid-offer-key})
+    (err err-invalid-offer-key)
   )
 )
 
