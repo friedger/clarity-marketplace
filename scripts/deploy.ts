@@ -83,14 +83,14 @@ export async function handleTransaction(transaction: StacksTransaction) {
 
 export async function deployContract(
   contractName: string,
-  options?: { path?: string; suffix?: string }
+  options?: { path?: string; suffix?: string; replaceFn?: (s: string) => string }
 ) {
   const codeBody = fs
     .readFileSync(options?.path || `./contracts/${contractName}.clar`)
     .toString();
   var transaction = await makeContractDeploy({
     contractName: `${contractName}${options?.suffix || ""}`,
-    codeBody: codeBody,
+    codeBody: options?.replaceFn ? options.replaceFn(codeBody) : codeBody,
     senderKey: secretKey,
     network,
   });
