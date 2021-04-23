@@ -45,7 +45,9 @@
     (if (is-eq tradable-owner tx-sender)
       (if (map-insert on-sale {owner: tradable-owner, tradables: (contract-of tradables), tradable-id: tradable-id}
                 {price: price, duration: duration})
-          (ok true)
+          (begin
+            (print {type: "offer-tradable", value: {tradables: (contract-of tradables), tradable-id: tradable-id, price: price, duration: duration}})
+            (ok true))
           (err err-duplicate-entry)
       )
       (err err-not-allowed)
@@ -66,7 +68,11 @@
   (match (map-get? offers {owner: tx-sender, bid-owner: bid-owner, tradables: (contract-of tradables), tradable-id: tradable-id})
     offer (begin
       (map-delete on-sale {owner: tx-sender, tradables: (contract-of tradables), tradable-id: tradable-id})
-      (transfer-tradable-to-escrow tradables tradable-id)
+      (match (transfer-tradable-to-escrow tradables tradable-id)
+        success (begin
+                  (print {type: "accept", value: {tradables: (contract-of tradables), tradable-id: tradable-id, bid-owner: bid-owner}})
+                  (ok true))
+        error (begin (print error) (err err-transfer-failed)))
     )
     (err err-invalid-offer-key)
   )
@@ -75,7 +81,11 @@
 ;; called by the tradable owner after a bid was accepted but not yet paid by the bidder
 (define-public (cancel (tradables <tradables-trait>) (tradable-id uint) (bid-owner principal))
   (match (map-get? offers {owner: tx-sender, bid-owner: bid-owner, tradables: (contract-of tradables), tradable-id: tradable-id})
-    offer (transfer-tradable-from-escrow tradables tradable-id)
+    offer (match (transfer-tradable-from-escrow tradables tradable-id)
+      success (begin
+                (print {type: "accept", value: {tradables: (contract-of tradables), tradable-id: tradable-id, bid-owner: bid-owner}})
+                (ok true))
+      error (begin (print error) (err err-transfer-failed)))
     (err err-invalid-offer-key)
   )
 )
@@ -84,7 +94,6 @@
 (define-public (pay (tradables <tradables-trait>) (tradable-id uint))
   (let ((contract (contract-of tradables)))
     (let (
-
         (owner (unwrap-panic (get owner (map-get? accepting-owners {tradables: contract,  tradable-id: tradable-id}))))
         (bid-owner tx-sender)
       )

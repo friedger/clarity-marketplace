@@ -21,7 +21,7 @@ The marketplace supports all assets that have are NFTs with uint keys.
 
 The marketplace provides two functions for a bidder for a token:
 
-- `bid`: allows to publish a price for a tradable asset that is defined by a contract implementating the `.market.tradables-trait` and by an unsigned integer.
+- `bid`: allows to publish a price for a tradable asset that is defined by a contract implementating the `tradables-trait` and by an unsigned integer.
 - `pay`: after the bid was accepted by the current owner, the bidder can pay for the asset using this function and the asset will be transferred to the bidder.
 
 The owner of a tradable asset can choose to accept a bid from all current bids:

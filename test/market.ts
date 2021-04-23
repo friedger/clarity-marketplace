@@ -43,6 +43,16 @@ class MonsterClient extends Client {
   }
 }
 
+class TradablesExtClient extends Client {
+  constructor(provider: Provider) {
+    super(
+      "S1G2081040G2081040G2081040G208105NK8PE5.tradables-trait-ext",
+      "contracts/tradables-trait-ext.clar",
+      provider
+    );
+  }
+}
+
 class TradablesClient extends Client {
   constructor(provider: Provider) {
     super(
@@ -122,12 +132,13 @@ class MarketClient extends Client {
   }
 }
 
-describe("monster contract test suite", () => {
+describe("market contract test suite", () => {
   let provider: Provider;
   let monsterClient: MonsterClient;
   let marketClient: MarketClient;
   let constTradableClient: ConstantTradableClient;
   let tradablesClient: TradablesClient;
+  let TradablesExtClient: TradablesExtClient;
 
   describe("syntax tests", () => {
     before(async () => {

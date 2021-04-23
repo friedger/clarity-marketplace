@@ -154,10 +154,13 @@ async function mintNFTs() {
       break;
     case 2:
       //await deployContract("nft-trait", "../clarity-smart-contracts/contracts/sips/nft-trait.clar");
-      await deployContract(
-        "boom-nfts-v5",
-        {path: "../../../gitlab/riot.ai/boom.money/contracts/boom-nfts.clar"}
-      );
+      //await deployContract("tradables-trait-ext");
+      await deployContract("market-ext");
+      /*
+      await deployContract("boom-nfts-v5", {
+        path: "../../../gitlab/riot.ai/boom.money/contracts/boom-nfts.clar",
+      });
+      */
       break;
     case 1:
       //await faucetCall("ST3SCYQ5V9EFAFNYMZ4WCAK9F1J2SKYD9H9K5SZVT"); // mo
@@ -171,10 +174,18 @@ async function mintNFTs() {
       //await faucetCall("ST2NM3E9MAWWRNGFEKW75QR4XXVA856N4MHNMYA3T");
       break;
     default:
-      await deployContract("tradables-trait");
-      await deployContract("market");
-      await deployContract("monsters", {suffix: "-v1"});
-      await deployContract("constant-tradables");
+      await deployContract("tradables-trait", { suffix: "-v1" });
+      await deployContract("market", {
+        suffix: "-v1",
+        replaceFn: (s) =>
+          s.replace(/\.tradables-trait\./g, ".tradables-trait-v1."),
+      });
+      await deployContract("monsters", { suffix: "-v1" });
+      await deployContract("constant-tradables", {
+        suffix: "-v1",
+        replaceFn: (s) =>
+          s.replace(/\.tradables-trait\./g, ".tradables-trait-v1."),
+      });
 
       /*
       await deployContract("monsters");
@@ -189,4 +200,4 @@ async function mintNFTs() {
       // await bid("monsters", 1, 100);
       break;
   }
-})(0);
+})(2);
