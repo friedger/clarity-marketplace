@@ -1,50 +1,32 @@
 {
   "name": "marketplace",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "author": {
     "name": "Friedger Müffke",
     "email": "mail@friedger.de"
   },
+  "description": "Run unit tests on this project.",
+  "type": "module",
   "repository": "https://github.com/friedger/marketplace.git",
   "private": true,
-  "engines": {
-    "node": ">=12"
-  },
   "scripts": {
-    "test": "mocha",
-    "test:watch": "mocha --watch"
+    "test": "vitest run",
+    "test:report": "vitest run -- --coverage --costs",
+    "test:watch": "chokidar \"tests/**/*.ts\" \"contracts/**/*.clar\" -c \"npm run test:report\"",
+    "clarigen:init": "clarigen init",
+    "clarigen": "clarigen"
   },
-  "devDependencies": {
-    "@stacks/network": "1.2.2",
-    "@stacks/transactions": "^1.3.5",
-    "@types/chai": "^4.2.15",
-    "@types/mocha": "^8.2.2",
-    "@types/node": "^14",
-    "chai": "^4.3.4",
-    "mocha": "^8.3.2",
-    "ts-node": "^9.1.1",
-    "typescript": "^4.2.3"
-  },
+  "license": "ISC",
   "dependencies": {
-    "@blockstack/clarity": "^0.3.10",
-    "@blockstack/clarity-native-bin": "^0.3.10",
-    "@stacks/blockchain-api-client": "^0.55.2",
-    "@stacks/encryption": "^1.2.3",
-    "@stacks/keychain": "^1.3.5",
-    "@stacks/stacking": "^1.3.5",
-    "c32check": "^1.1.2",
-    "cross-fetch": "^3.0.6"
-  },
-  "mocha": {
-    "require": [
-      "ts-node/register/transpile-only",
-      "source-map-support/register"
-    ],
-    "extension": [
-      "ts",
-      "clar"
-    ],
-    "timeout": 0,
-    "recursive": true
+    "@clarigen/cli": "^2.1.2",
+    "@clarigen/core": "^2.1.2",
+    "@clarigen/test": "^2.1.2",
+    "@hirosystems/clarinet-sdk": "^2.9.0",
+    "@stacks/transactions": "^6.12.0",
+    "chokidar-cli": "^3.0.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.1.4",
+    "vitest": "^1.3.1",
+    "vitest-environment-clarinet": "^2.0.0"
   }
 }
