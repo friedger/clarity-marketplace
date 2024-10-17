@@ -15,7 +15,7 @@
 (define-constant hunger-tolerance u86400) ;; 1 day in seconds
 
 (define-private (get-time)
-   (unwrap-panic (get-stacks-block-info? time (- stacks-block-height u1))))
+   (print (unwrap-panic (get-stacks-block-info? time (- stacks-block-height u1)))))
 
 (define-private (is-last-meal-young (last-meal uint))
   (> (to-int last-meal) (to-int (- (get-time) hunger-tolerance))))
@@ -72,7 +72,7 @@
 
 (define-read-only (is-alive (monster-id uint))
   (match (map-get? monsters monster-id)
-    monster (ok (is-last-meal-young (get last-meal monster)))
+    monster (ok (asserts! (is-last-meal-young (get last-meal monster)) err-monster-died))
    err-monster-unborn
   )
 )
@@ -90,8 +90,9 @@
             (map-get? monster-actions action-key)))
         (count (+ u1 (len actions)))
         (current-winner (default-to no-monster (map-get? winners tenure-height))))
-    ;; only owner can use a tool for a monster
+    ;; only owner can use a tool for a living monster
     (asserts! (is-eq (nft-get-owner? nft-monsters monster-id) (some tx-sender)) err-not-owner)
+    (try! (is-alive monster-id))
     ;; register action
     (map-set monster-actions action-key (unwrap! (as-max-len? (append actions 
               {tool: (match tool some-tool (contract-of some-tool) (as-contract tx-sender)), 
@@ -102,8 +103,10 @@
       (let ((new-winner {count: count, monster-id: monster-id}))
         (print {a: "set-winner", winner: new-winner, tenure: tenure-height})
         (map-set winners tenure-height new-winner)
-        (print {a: "set-prize", winner: current-winner, tenure: tenure-height})
-        (map-set second-bests tenure-height current-winner))
+        (and (not (is-eq (get monster-id current-winner) monster-id))
+          (begin
+            (print {a: "set-prize", winner: current-winner, tenure: tenure-height})
+            (map-set second-bests tenure-height current-winner))))
       (let ((second-best (default-to no-monster (map-get? second-bests tenure-height))))
         (if (> count (get count second-best))
           (let ((new-second-best {count: count, monster-id: monster-id}))
