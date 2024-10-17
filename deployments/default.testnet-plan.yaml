@@ -9,34 +9,10 @@ plan:
     - id: 0
       transactions:
         - contract-publish:
-            contract-name: tradables-trait
+            contract-name: tool-mega-v2
             expected-sender: ST3FFRX7C911PZP5RHE148YDVDD9JWVS6FZRA60VS
-            cost: 411162
-            path: contracts/tradables-trait.clar
+            cost: 394272
+            path: contracts/tool-mega.clar
             anchor-block-only: true
-            clarity-version: 1
-        - contract-publish:
-            contract-name: constant-tradables
-            expected-sender: ST3FFRX7C911PZP5RHE148YDVDD9JWVS6FZRA60VS
-            cost: 411212
-            path: contracts/constant-tradables.clar
-            anchor-block-only: true
-            clarity-version: 1
-        - contract-publish:
-            contract-name: market
-            expected-sender: ST3FFRX7C911PZP5RHE148YDVDD9JWVS6FZRA60VS
-            cost: 412303
-            path: contracts/market.clar
-            anchor-block-only: true
-            clarity-version: 1
-      epoch: "2.05"
-    - id: 1
-      transactions:
-        - contract-publish:
-            contract-name: monsters
-            expected-sender: ST3FFRX7C911PZP5RHE148YDVDD9JWVS6FZRA60VS
-            cost: 412600
-            path: contracts/monsters.clar
-            anchor-block-only: true
-            clarity-version: 3
-      epoch: "3.0"
+            clarity-version: 2
+      epoch: "2.5"
