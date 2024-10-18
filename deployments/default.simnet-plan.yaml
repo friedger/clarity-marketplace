@@ -48,9 +48,6 @@ genesis:
 plan:
   batches:
     - id: 0
-      transactions: []
-      epoch: "2.05"
-    - id: 1
       transactions:
         - emulated-contract-publish:
             contract-name: tradables-trait
@@ -67,74 +64,8 @@ plan:
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/market.clar
             clarity-version: 1
-      epoch: "2.1"
-    - id: 2
-      transactions: []
-      epoch: "2.1"
-    - id: 3
-      transactions: []
-      epoch: "2.1"
-    - id: 4
-      transactions: []
-      epoch: "2.1"
-    - id: 5
-      transactions: []
-      epoch: "2.1"
-    - id: 6
-      transactions: []
-      epoch: "2.1"
-    - id: 7
-      transactions: []
-      epoch: "2.1"
-    - id: 8
-      transactions: []
-      epoch: "2.1"
-    - id: 9
-      transactions: []
-      epoch: "2.1"
-    - id: 10
-      transactions: []
-      epoch: "2.1"
-    - id: 11
-      transactions: []
-      epoch: "2.1"
-    - id: 12
-      transactions: []
-      epoch: "2.1"
-    - id: 13
-      transactions: []
-      epoch: "2.1"
-    - id: 14
-      transactions: []
-      epoch: "2.1"
-    - id: 15
-      transactions: []
-      epoch: "2.1"
-    - id: 16
-      transactions: []
-      epoch: "2.1"
-    - id: 17
-      transactions: []
-      epoch: "2.1"
-    - id: 18
-      transactions: []
-      epoch: "2.1"
-    - id: 19
-      transactions: []
-      epoch: "2.1"
-    - id: 20
-      transactions: []
-      epoch: "2.1"
-    - id: 21
-      transactions: []
-      epoch: "2.1"
-    - id: 22
-      transactions: []
-      epoch: "2.1"
-    - id: 23
-      transactions: []
-      epoch: "2.1"
-    - id: 24
+      epoch: "2.05"
+    - id: 1
       transactions:
         - emulated-contract-publish:
             contract-name: tool-mega
@@ -142,143 +73,26 @@ plan:
             path: contracts/tool-mega.clar
             clarity-version: 2
       epoch: "2.5"
-    - id: 25
-      transactions: []
-      epoch: "2.5"
-    - id: 26
-      transactions: []
-      epoch: "2.5"
-    - id: 27
-      transactions: []
-      epoch: "2.5"
-    - id: 28
-      transactions: []
-      epoch: "2.5"
-    - id: 29
-      transactions: []
-      epoch: "2.5"
-    - id: 30
-      transactions: []
-      epoch: "2.5"
-    - id: 31
-      transactions: []
-      epoch: "2.5"
-    - id: 32
-      transactions: []
-      epoch: "2.5"
-    - id: 33
-      transactions: []
-      epoch: "2.5"
-    - id: 34
-      transactions: []
-      epoch: "2.5"
-    - id: 35
-      transactions: []
-      epoch: "2.5"
-    - id: 36
-      transactions: []
-      epoch: "2.5"
-    - id: 37
-      transactions: []
-      epoch: "2.5"
-    - id: 38
-      transactions: []
-      epoch: "2.5"
-    - id: 39
-      transactions: []
-      epoch: "2.5"
-    - id: 40
-      transactions: []
-      epoch: "2.5"
-    - id: 41
-      transactions: []
-      epoch: "2.5"
-    - id: 42
-      transactions: []
-      epoch: "2.5"
-    - id: 43
-      transactions: []
-      epoch: "2.5"
-    - id: 44
-      transactions: []
-      epoch: "2.5"
-    - id: 45
-      transactions: []
-      epoch: "2.5"
-    - id: 46
-      transactions: []
-      epoch: "2.5"
-    - id: 47
+    - id: 2
       transactions:
         - emulated-contract-publish:
             contract-name: monsters
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/monsters.clar
             clarity-version: 3
-      epoch: "3.0"
-    - id: 48
-      transactions: []
-      epoch: "3.0"
-    - id: 49
-      transactions: []
-      epoch: "3.0"
-    - id: 50
-      transactions: []
-      epoch: "3.0"
-    - id: 51
-      transactions: []
-      epoch: "3.0"
-    - id: 52
-      transactions: []
-      epoch: "3.0"
-    - id: 53
-      transactions: []
-      epoch: "3.0"
-    - id: 54
-      transactions: []
-      epoch: "3.0"
-    - id: 55
-      transactions: []
-      epoch: "3.0"
-    - id: 56
-      transactions: []
-      epoch: "3.0"
-    - id: 57
-      transactions: []
-      epoch: "3.0"
-    - id: 58
-      transactions: []
-      epoch: "3.0"
-    - id: 59
-      transactions: []
-      epoch: "3.0"
-    - id: 60
-      transactions: []
-      epoch: "3.0"
-    - id: 61
-      transactions: []
-      epoch: "3.0"
-    - id: 62
-      transactions: []
-      epoch: "3.0"
-    - id: 63
-      transactions: []
-      epoch: "3.0"
-    - id: 64
-      transactions: []
-      epoch: "3.0"
-    - id: 65
-      transactions: []
-      epoch: "3.0"
-    - id: 66
-      transactions: []
-      epoch: "3.0"
-    - id: 67
-      transactions: []
-      epoch: "3.0"
-    - id: 68
-      transactions: []
-      epoch: "3.0"
-    - id: 69
-      transactions: []
+        - emulated-contract-publish:
+            contract-name: tool-loop-100
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/tool-loop-100.clar
+            clarity-version: 3
+        - emulated-contract-publish:
+            contract-name: tool-read
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/tool-read.clar
+            clarity-version: 3
+        - emulated-contract-publish:
+            contract-name: tool-read-100
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/tool-read-100.clar
+            clarity-version: 3
       epoch: "3.0"

@@ -25,6 +25,21 @@ path = 'contracts/tool-mega.clar'
 clarity_version = 2
 epoch = 2.5
 
+[contracts.tool-read]
+path = 'contracts/tool-read.clar'
+clarity_version = 3
+epoch = 3.0
+
+[contracts.tool-read-100]
+path = 'contracts/tool-read-100.clar'
+clarity_version = 3
+epoch = 3.0
+
+[contracts.tool-loop-100]
+path = 'contracts/tool-loop-100.clar'
+clarity_version = 3
+epoch = 3.0
+
 [contracts.tradables-trait]
 path = 'contracts/tradables-trait.clar'
 clarity_version = 1

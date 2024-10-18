@@ -1,0 +1,1 @@
+(contract-call? .tool-read-100 activate)

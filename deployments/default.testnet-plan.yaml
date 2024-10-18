@@ -9,10 +9,10 @@ plan:
     - id: 0
       transactions:
         - contract-publish:
-            contract-name: tool-mega-v2
+            contract-name: monster-x
             expected-sender: ST3FFRX7C911PZP5RHE148YDVDD9JWVS6FZRA60VS
-            cost: 394272
-            path: contracts/tool-mega.clar
+            cost: 733359
+            path: contracts/monsters.clar
             anchor-block-only: true
-            clarity-version: 2
-      epoch: "2.5"
+            clarity-version: 3
+      epoch: "3.0"
